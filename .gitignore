@@ -24,3 +24,10 @@ yarn-error.log*
 
 #back
 __pycache__
+*.sqlite3
+*.db
+
+*/migrations/
+
+.env
+
