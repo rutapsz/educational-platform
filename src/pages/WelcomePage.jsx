@@ -1,4 +1,3 @@
-// src/pages/WelcomePage.jsx
 import React from 'react';
 
 const WelcomePage = () => {
