@@ -6,6 +6,7 @@ o	name (VARCHAR) — название курса
 o	topic (VARCHAR) — тематика курса
 o	session_count (INTEGER) — количество занятий
 o	price (DECIMAL) — цена курса
+# надо будет разделы учесть?
 o	max_students (INTEGER) — максимальное количество слушателей ### надо? не надо? надо?
 
 2.	Teachers (Преподаватели):
