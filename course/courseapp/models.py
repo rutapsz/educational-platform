@@ -30,23 +30,6 @@ class Student(models.Model):
     def __str__(self):
         return self.full_name
 
-class ClassGroup(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    start_date = models.DateField()
-    end_date = models.DateField()
-
-    def __str__(self):
-        return f'{self.course.name} - {self.teacher.full_name}'
-
-class Schedule(models.Model):
-    class_group = models.ForeignKey(ClassGroup, on_delete=models.CASCADE)
-    date_time = models.DateTimeField()
-    location = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f'{self.class_group.course.name} at {self.location}'
-
 class Grade(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
