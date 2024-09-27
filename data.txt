@@ -6,7 +6,7 @@ o	name (VARCHAR) — название курса
 o	topic (VARCHAR) — тематика курса
 o	session_count (INTEGER) — количество занятий
 o	price (DECIMAL) — цена курса
-o	max_students (INTEGER) — максимальное количество слушателей
+o	max_students (INTEGER) — максимальное количество слушателей ### надо? не надо? надо?
 2.	Teachers (Преподаватели):
 o	id (PK) — уникальный идентификатор преподавателя
 o	full_name (VARCHAR) — ФИО преподавателя
@@ -24,33 +24,28 @@ o	contact_info (TEXT) — контактные данные (телефон, ema
 o	id (PK) — уникальный идентификатор группы
 o	course_id (FK) — курс
 o	teacher_id (FK) — преподаватель
-o	start_date (DATE) — дата начала занятий
-o	end_date (DATE) — дата окончания занятий
-5.	Schedule (Расписание):
-o	id (PK) — уникальный идентификатор расписания
-o	classgroup_id (FK) — группа занятий
-o	date_time (TIMESTAMP) — дата и время проведения занятия
-o	location (VARCHAR) — место проведения
-6.	Grades (Оценки):
+o	start_date (DATE) — дата начала занятий ### надо? не надо? надо?
+o	end_date (DATE) — дата окончания занятий ### надо? не надо? надо?
+5.	Grades (Оценки):
 o	id (PK) — уникальный идентификатор оценки
 o	student_id (FK) — слушатель
 o	course_id (FK) — курс
 o	teacher_id (FK) — преподаватель
 o	grade (VARCHAR) — оценка
 o	date (DATE) — дата аттестации
-7.	LearningHistory (История обучения):
+6.	LearningHistory (История обучения):
 o	id (PK) — уникальный идентификатор записи истории обучения
 o	student_id (FK) — слушатель
 o	course_id (FK) — курс
 o	certificate_id (FK) — сертификат
 o	completion_date (DATE) — дата завершения курса
-8.	Materials (Материалы):
+7.	Materials (Материалы):
 o	id (PK) — уникальный идентификатор материала
 o	name (VARCHAR) — название материала
 o	type (VARCHAR) — тип материала (учебник, пособие)
 o	condition (VARCHAR) — состояние материала
 o	course_id (FK) — курс, в котором используется материал
-9.	Certificates (Сертификаты):
+8.	Certificates (Сертификаты):
 o	id (PK) — уникальный идентификатор сертификата
 o	type (VARCHAR) — тип сертификата (сертификат/свидетельство)
 o	issue_date (DATE) — дата выдачи
