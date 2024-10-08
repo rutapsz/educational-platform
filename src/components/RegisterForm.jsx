@@ -1,68 +1,72 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
-const RegisterForm = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
+function RegisterForm({ switchForm }) {
+  const [registerData, setRegisterData] = useState({
+    firstName: '',
+    lastName: '',
+    login: '',
     password: ''
   });
-  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+  const handleRegisterChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterData({
+      ...registerData,
+      [name]: value
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleRegisterSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post('', formData);
-      console.log('User registered:', response.data);
-      navigate('/welcome');
-    } catch (error) {
-      console.error('Registration error:', error);
-    }
+    
+    console.log('Register Data:', registerData);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleRegisterSubmit} className="form">
+      <h2>Регистрация</h2>
       <div>
-        <label>Username</label>
+        <label>Имя:</label>
         <input
           type="text"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          required
+          name="firstName"
+          value={registerData.firstName}
+          onChange={handleRegisterChange}
         />
       </div>
       <div>
-        <label>Email</label>
+        <label>Фамилия:</label>
         <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
+          type="text"
+          name="lastName"
+          value={registerData.lastName}
+          onChange={handleRegisterChange}
         />
       </div>
       <div>
-        <label>Password</label>
+        <label>Логин:</label>
+        <input
+          type="text"
+          name="login"
+          value={registerData.login}
+          onChange={handleRegisterChange}
+        />
+      </div>
+      <div>
+        <label>Пароль:</label>
         <input
           type="password"
           name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
+          value={registerData.password}
+          onChange={handleRegisterChange}
         />
       </div>
-      <button type="submit">Register</button>
+      <button type="submit">Зарегистрироваться</button>
+      <p>
+        Уже есть аккаунт? <span onClick={() => switchForm('login')} style={{ cursor: 'pointer', color: 'blue' }}>Войти</span>
+      </p>
     </form>
   );
-};
+}
 
 export default RegisterForm;
