@@ -1,0 +1,55 @@
+Даталогическая модель.
+Таблицы и их атрибуты:
+1.	Courses (Курсы):
+o	id (PK) — уникальный идентификатор курса
+o	name (VARCHAR) — название курса
+o	topic (VARCHAR) — тематика курса
+o	session_count (INTEGER) — количество занятий
+o	price (DECIMAL) — цена курса
+# надо будет разделы учесть?
+o	max_students (INTEGER) — максимальное количество слушателей ### надо? не надо? надо?
+
+2.	Teachers (Преподаватели):
+o	id (PK) — уникальный идентификатор преподавателя
+o	full_name (VARCHAR) — ФИО преподавателя
+o	birth_date (DATE) — дата рождения
+o	specialization (TEXT) — специализация преподавателя
+o	contact_info (TEXT) — контактные данные (телефон, email)
+o	is_staff (BOOLEAN) — штатный преподаватель (True/False)
+o	experience (INTEGER) — опыт работы
+
+3.	Students (Слушатели):
+o	id (PK) — уникальный идентификатор слушателя
+o	full_name (VARCHAR) — ФИО слушателя
+o	birth_date (DATE) — дата рождения
+o	contact_info (TEXT) — контактные данные (телефон, email)
+
+4.	Grades (Оценки):
+o	id (PK) — уникальный идентификатор оценки
+o	student_id (FK) — слушатель
+o	course_id (FK) — курс
+o	teacher_id (FK) — преподаватель
+o	grade (VARCHAR) — оценка
+o	date (DATE) — дата аттестации
+
+5.	LearningHistory (История обучения):
+o	id (PK) — уникальный идентификатор записи истории обучения
+o	student_id (FK) — слушатель
+o	course_id (FK) — курс
+o	certificate_id (FK) — сертификат
+o	completion_date (DATE) — дата завершения курса
+
+6.	Materials (Материалы):
+o	id (PK) — уникальный идентификатор материала
+o	name (VARCHAR) — название материала
+o	type (VARCHAR) — тип материала (учебник, пособие)
+o	condition (VARCHAR) — состояние материала #пока не знаю, что это будет, но посмотрим
+o	course_id (FK) — курс, в котором используется материал
+
+7.	Certificates (Сертификаты):
+o	id (PK) — уникальный идентификатор сертификата
+o	type (VARCHAR) — тип сертификата (сертификат/свидетельство)
+o	issue_date (DATE) — дата выдачи
+o	teacher_id (FK) — преподаватель, выдавший сертификат
+o	student_id (FK) — слушатель, которому выдан сертификат
+o	course_id (FK) — курс, по которому выдан сертификат
