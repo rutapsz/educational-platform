@@ -1,33 +1,55 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 
-const Profile = ({ token }) => {
-    const [profile, setProfile] = useState({ login: '', email: '' });
+const ProfilePage = () => {
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/api/user-profile/', {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                setProfile(response.data);
-            } catch (error) {
-                console.error('Error fetching profile:', error);
-            }
-        };
+  const fetchProfile = async () => {
+    const token = localStorage.getItem('token'); // Получите токен из localStorage
+    if (!token) {
+      setError('Токен не найден');
+      return;
+    }
 
-        fetchProfile();
-    }, [token]);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/users/me/', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-    return (
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data);
+      } else {
+        setError('Ошибка при получении профиля: ' + response.status);
+      }
+    } catch (err) {
+      setError('Ошибка: ' + err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile(); // Вызов функции для получения данных профиля при загрузке компонента
+  }, []);
+
+  return (
+    <div>
+      <h1>Профиль пользователя</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {userData ? (
         <div>
-            <h1>Profile</h1>
-            <p><strong>Login:</strong> {profile.login}</p>
-            <p><strong>Email:</strong> {profile.email}</p>
+          <p><strong>Логин:</strong> {userData.login}</p>
+          <p><strong>Email:</strong> {userData.email}</p>
+          <p><strong>Роль:</strong> {userData.role}</p>
         </div>
-    );
+      ) : (
+        <p>Загрузка данных профиля...</p>
+      )}
+    </div>
+  );
 };
 
-export default Profile;
+export default ProfilePage;

@@ -1,8 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
 
 const Header = ({ openModal }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem('access_token');
+    setIsAuthenticated(!!accessToken);
+  }, []);
+
+  const handleLogout = () => {
+    // Удаляем токены из localStorage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    setIsAuthenticated(false);
+    window.location.reload();
+  };
+
   return (
     <header>
       <nav>
@@ -21,15 +36,25 @@ const Header = ({ openModal }) => {
           </li>
         </ul>
         <ul className="authorization">
-          <li>
-            <Link to="/profile">Профиль</Link>
-          </li>
-          <li>
-            <span onClick={() => openModal('register')} style={{ cursor: 'pointer' }}>Регистрация</span>
-          </li>
-          <li>
-            <span onClick={() => openModal('login')} style={{ cursor: 'pointer' }}>Вход</span>
-          </li>
+          {isAuthenticated ? (
+            <>
+              <li>
+                <Link to="/profile">Профиль</Link>
+              </li>
+              <li>
+                <span onClick={handleLogout} style={{ cursor: 'pointer' }}>Выход</span>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <span onClick={() => openModal('register')} style={{ cursor: 'pointer' }}>Регистрация</span>
+              </li>
+              <li>
+                <span onClick={() => openModal('login')} style={{ cursor: 'pointer' }}>Вход</span>
+              </li>
+            </>
+          )}
         </ul>
       </nav>
     </header>

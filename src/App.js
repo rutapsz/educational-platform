@@ -15,13 +15,13 @@ import Profile from './pages/Profile';
 import AuthForm from './components/AuthForm';
 import LoginForm from './components/LoginForm';
 import ProtectedRoute from './components/ProtectedRoute';
-import { convertToRaw, ContentState } from 'draft-js'; // Import these from draft-js
+import { convertToRaw, ContentState } from 'draft-js';
 import './App.css';
 
 const App = () => {
-  const [token, setToken] = useState(null); // Initialize token
+  const [token, setToken] = useState(null);
 
-  // Pre-populate some example course data
+  
   const rawEditorState1 = convertToRaw(ContentState.createFromText('Правообладатель – человек или организация, которые могут без ограничений распоряжаться и пользоваться приложением, а также вносить в него изменения и ограничивать его для использования.'));
   const rawEditorState2 = convertToRaw(ContentState.createFromText('С приложениями для мобильных устройств и ПК сталкивается каждый человек. Мы скачиваем банковские приложения, приложения для оказания госуслуг, игры. Устанавливая приложение, мы далеко не всегда знаем, можно ли его отправлять другу или коллеге и делаем это, не задумываясь о последствиях. Давайте разберемся, как использовать программу безопасно для себя.'));
   const rawEditorState3 = convertToRaw(ContentState.createFromText('Современные приложения работают для пользователя «из коробки». Так, алгоритм использования приложения сводится к следующему: скачать, открыть, потребить все полезные свой	ства приложения. При таком алгоритме опасность для пользователя сводится к минимуму.'));
@@ -94,7 +94,7 @@ const App = () => {
         <Route path="/add-course" element={<AddCourse addCourse={addCourse} editCourse={editCourse} courses={courses} />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/welcome" element={<WelcomePage />} />
-        <Route path="/profile" element={<ProtectedRoute token={token} element={<Profile token={token} />} openModal={openModal} />} />
+        <Route path="/profile" element={<WelcomePage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/course/:id" element={<CoursePage courses={courses} />} />

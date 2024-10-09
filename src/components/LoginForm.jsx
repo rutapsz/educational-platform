@@ -29,8 +29,8 @@ function LoginForm({ switchForm }) {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
 
-      setErrorMessage('');
-      alert('Вход выполнен успешно!');
+
+      window.location.reload();
     } catch (error) {
       console.error('Ошибка при входе:', error.response?.data || error);
       setErrorMessage(error.response?.data?.error || 'Ошибка при входе');
