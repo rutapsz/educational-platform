@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function LoginForm({ switchForm }) {
   const [loginData, setLoginData] = useState({
     login: '',
     password: ''
   });
+
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -14,10 +17,24 @@ function LoginForm({ switchForm }) {
     });
   };
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     
-    console.log('Login Data:', loginData);
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/api/login/', {
+        login: loginData.login,
+        password: loginData.password
+      });
+
+      localStorage.setItem('access_token', response.data.access);
+      localStorage.setItem('refresh_token', response.data.refresh);
+
+      setErrorMessage('');
+      alert('Вход выполнен успешно!');
+    } catch (error) {
+      console.error('Ошибка при входе:', error.response?.data || error);
+      setErrorMessage(error.response?.data?.error || 'Ошибка при входе');
+    }
   };
 
   return (
@@ -30,6 +47,7 @@ function LoginForm({ switchForm }) {
           name="login"
           value={loginData.login}
           onChange={handleLoginChange}
+          required
         />
       </div>
       <div>
@@ -39,11 +57,18 @@ function LoginForm({ switchForm }) {
           name="password"
           value={loginData.password}
           onChange={handleLoginChange}
+          required
         />
       </div>
       <button type="submit">Войти</button>
+
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+
       <p>
-        Нет аккаунта? <span onClick={() => switchForm('register')} style={{ cursor: 'pointer', color: 'blue' }}>Зарегистрироваться</span>
+        Нет аккаунта?{' '}
+        <span onClick={() => switchForm('register')} style={{ cursor: 'pointer', color: 'blue' }}>
+          Зарегистрироваться
+        </span>
       </p>
     </form>
   );

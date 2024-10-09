@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-
-
 function RegisterForm({ switchForm }) {
-  
   const [registerData, setRegisterData] = useState({
-    firstName: '',
-    lastName: '',
     login: '',
     password: '',
     email: '',
@@ -21,6 +16,14 @@ function RegisterForm({ switchForm }) {
     });
   };
 
+  const getCSRFToken = () => {
+    const csrfToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1];
+    return csrfToken;
+  };
+  
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     
@@ -31,12 +34,15 @@ function RegisterForm({ switchForm }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
         },
         body: JSON.stringify({
           login: registerData.login,
           password: registerData.password,
           email: registerData.email,
-          role: 'user'
+          role: 'user', 
+          token: null,
+          seance: null
         }),
       });
   
@@ -50,28 +56,9 @@ function RegisterForm({ switchForm }) {
     }
   };
   
-
   return (
     <form onSubmit={handleRegisterSubmit} className="form">
       <h2>Регистрация</h2>
-      <div>
-        <label>Имя:</label>
-        <input
-          type="text"
-          name="firstName"
-          value={registerData.firstName}
-          onChange={handleRegisterChange}
-        />
-      </div>
-      <div>
-        <label>Фамилия:</label>
-        <input
-          type="text"
-          name="lastName"
-          value={registerData.lastName}
-          onChange={handleRegisterChange}
-        />
-      </div>
       <div>
         <label>Логин:</label>
         <input
