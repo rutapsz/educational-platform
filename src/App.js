@@ -4,8 +4,6 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import RegisterForm from './components/RegisterForm';
-import Signup from './pages/Signup';
-import Login from './pages/Login';
 import AddCourse from './pages/AddCourse';
 import CoursePage from './pages/CoursePage';
 import Profile from './pages/Profile';
@@ -39,15 +37,10 @@ const App = () => {
     <Router>
       <Header openModal={openModal} />
       <Routes>
-        
         <Route path="/" element={<Home />} />
-
         <Route path="/add-course" element={<AddCourse />} />
         <Route path="/register" element={<RegisterForm />} />
-
         <Route path="/profile" element={<Profile />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/course/:id" element={<CoursePage />} />
       </Routes>
       <Footer />
