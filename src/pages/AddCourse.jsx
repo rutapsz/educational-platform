@@ -1,130 +1,251 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './AddCourse.css';
-import TextEditor from '../components/TextEditor';
 
-const AddCourse = ({ addCourse }) => {
-  const [courseTitle, setCourseTitle] = useState('');
-  const [topics, setTopics] = useState([{ title: '', sections: [{ title: '', text: '' }] }]);
-  const navigate = useNavigate();
+const AddCourse = () => {
+  const [courses, setCourses] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [courseName, setCourseName] = useState('');
+  const [courseDescription, setCourseDescription] = useState('');
+  const [topicName, setTopicName] = useState('');
+  const [moduleNumber, setModuleNumber] = useState('');
+  const [position, setPosition] = useState('');
+  const [dataRef, setDataRef] = useState('');
+  const [isEditingCourse, setIsEditingCourse] = useState(false);
+  const [isEditingTopic, setIsEditingTopic] = useState(false);
+  const [selectedTopicId, setSelectedTopicId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleCourseSubmit = (e) => {
-    e.preventDefault();
-    const newCourse = {
-      id: Math.random(),
-      title: courseTitle,
-      topics,
+  // Получение списка курсов
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/courses/');
+        setCourses(response.data);
+      } catch (error) {
+        console.error('Ошибка при загрузке курсов', error);
+      }
     };
-    addCourse(newCourse);
-    navigate('/courses');
+    fetchCourses();
+  }, []);
+
+  // Получение топиков по курсу
+  const fetchTopics = async (courseId) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/topics/?course=${courseId}`);
+      setTopics(response.data);
+    } catch (error) {
+      console.error('Ошибка при загрузке топиков', error);
+    }
   };
 
-  const handleAddTopic = () => {
-    setTopics([...topics, { title: '', sections: [{ title: '', text: '' }] }]);
+  // Заполнение формы для редактирования курса
+  const handleEditCourse = (courseId) => {
+    const course = courses.find((c) => c.id === courseId);
+    if (course) {
+      setSelectedCourseId(course.id);
+      setCourseName(course.name);
+      setCourseDescription(course.main_info);
+      setIsEditingCourse(true);
+      fetchTopics(courseId);
+    }
   };
 
-  const handleAddSection = (topicIndex) => {
-    const updatedTopics = [...topics];
-    updatedTopics[topicIndex].sections.push({ title: '', text: '' });
-    setTopics(updatedTopics);
+  // Обработка создания или редактирования курса
+  const handleCourseSubmit = async (e) => {
+    e.preventDefault();
+
+    const updatedCourse = {
+      name: courseName,
+      main_info: courseDescription,
+    };
+
+    try {
+      if (isEditingCourse) {
+        await axios.put(`http://localhost:8000/api/courses/${selectedCourseId}/`, updatedCourse);
+        setSuccessMessage('Курс успешно обновлен!');
+      } else {
+        const response = await axios.post('http://localhost:8000/api/courses/', updatedCourse);
+        setSelectedCourseId(response.data.id);
+        setSuccessMessage('Курс успешно создан!');
+      }
+      const updatedCourses = await axios.get('http://localhost:8000/api/courses/');
+      setCourses(updatedCourses.data);
+      setIsEditingCourse(false);
+    } catch (error) {
+      console.error('Ошибка при отправке данных курса', error);
+    }
   };
 
-  const handleTopicChange = (topicIndex, e) => {
-    const updatedTopics = [...topics];
-    updatedTopics[topicIndex].title = e.target.value;
-    setTopics(updatedTopics);
+  // Заполнение формы для редактирования топика
+  const handleEditTopic = (topicId) => {
+    const topic = topics.find((t) => t.id === topicId);
+    if (topic) {
+      setSelectedTopicId(topic.id);
+      setTopicName(topic.name);
+      setModuleNumber(topic.module);
+      setPosition(topic.position);
+      setDataRef(topic.data_ref);
+      setIsEditingTopic(true);
+    }
   };
 
-  const handleSectionChange = (topicIndex, sectionIndex, field, value) => {
-    const updatedTopics = [...topics];
-    updatedTopics[topicIndex].sections[sectionIndex][field] = value;
-    setTopics(updatedTopics);
+  // Обработка создания или редактирования топика
+  const handleTopicSubmit = async (e) => {
+    e.preventDefault();
+
+    const updatedTopic = {
+      course: selectedCourseId,
+      name: topicName,
+      module: moduleNumber,
+      position: position,
+      data_ref: dataRef,
+    };
+
+    try {
+      if (isEditingTopic) {
+        await axios.put(`http://localhost:8000/api/topics/${selectedTopicId}/`, updatedTopic);
+        setSuccessMessage('Топик успешно обновлен!');
+      } else {
+        await axios.post('http://localhost:8000/api/topics/', updatedTopic);
+        setSuccessMessage('Топик успешно создан!');
+      }
+
+      fetchTopics(selectedCourseId);
+      setIsEditingTopic(false);
+
+      // Сброс формы
+      setTopicName('');
+      setModuleNumber('');
+      setPosition('');
+      setDataRef('');
+      setSelectedTopicId(null);
+    } catch (error) {
+      console.error('Ошибка при отправке данных топика', error);
+    }
   };
 
-  const handleDeleteTopic = (topicIndex) => {
-    const updatedTopics = topics.filter((_, index) => index !== topicIndex);
-    setTopics(updatedTopics);
+  // Удаление курса
+  const handleDeleteCourse = async (courseId) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/courses/${courseId}/`);
+      setSuccessMessage('Курс успешно удален!');
+      const updatedCourses = await axios.get('http://localhost:8000/api/courses/');
+      setCourses(updatedCourses.data);
+      setSelectedCourseId(null);
+      setTopics([]);
+    } catch (error) {
+      console.error('Ошибка при удалении курса', error);
+    }
   };
 
-  const handleDeleteSection = (topicIndex, sectionIndex) => {
-    const updatedTopics = [...topics];
-    updatedTopics[topicIndex].sections = updatedTopics[topicIndex].sections.filter((_, index) => index !== sectionIndex);
-    setTopics(updatedTopics);
+  // Удаление топика
+  const handleDeleteTopic = async (topicId) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/topics/${topicId}/`);
+      setSuccessMessage('Топик успешно удален!');
+      fetchTopics(selectedCourseId);
+    } catch (error) {
+      console.error('Ошибка при удалении топика', error);
+    }
   };
 
   return (
     <div className="add-course-container">
-      <h2>Создание нового курса</h2>
-      <form onSubmit={handleCourseSubmit}>
-        <div className="form-group">
-          <label htmlFor="courseTitle">Название курса</label>
+      <h1>{isEditingCourse ? 'Редактировать курс' : 'Создать новый курс'}</h1>
+      <form onSubmit={handleCourseSubmit} className="add-course-form">
+        <div>
+          <label>Название курса</label>
           <input
             type="text"
-            id="courseTitle"
-            className="input-field"
-            value={courseTitle}
-            onChange={(e) => setCourseTitle(e.target.value)}
+            value={courseName}
+            onChange={(e) => setCourseName(e.target.value)}
             required
-            placeholder="Введите название курса"
           />
         </div>
-
-        {topics.map((topic, topicIndex) => (
-          <div key={topicIndex} className="topic-section">
-            <label htmlFor={`topic-${topicIndex}`}>Тема {topicIndex + 1}</label>
-            <input
-              type="text"
-              id={`topic-${topicIndex}`}
-              className="input-field"
-              value={topic.title}
-              onChange={(e) => handleTopicChange(topicIndex, e)}
-              required
-              placeholder="Введите название темы"
-            />
-            <button type="button" className="gray-button delete-button" onClick={() => handleDeleteTopic(topicIndex)}>
-              Удалить тему
-            </button>
-
-            {topic.sections.map((section, sectionIndex) => (
-              <div key={sectionIndex} className="section-editor">
-                <label>Раздел {sectionIndex + 1}</label>
-                <input
-                  type="text"
-                  className="input-field"
-                  value={section.title}
-                  onChange={(e) => handleSectionChange(topicIndex, sectionIndex, 'title', e.target.value)}
-                  required
-                  placeholder="Введите название раздела"
-                />
-                <TextEditor
-                  initialValue={section.text}
-                  onChange={(content) => handleSectionChange(topicIndex, sectionIndex, 'text', content)}
-                />
-                <button
-                  type="button"
-                  className="gray-button delete-button"
-                  onClick={() => handleDeleteSection(topicIndex, sectionIndex)}
-                >
-                  Удалить раздел
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              className="gray-button add-section-button"
-              onClick={() => handleAddSection(topicIndex)}
-            >
-              Добавить раздел
-            </button>
-          </div>
-        ))}
-        <button type="button" className="gray-button add-topic-button" onClick={handleAddTopic}>
-          Добавить тему
-        </button>
-        <button type="submit" className="create-course-button">
-          Создать курс
-        </button>
+        <div>
+          <label>Описание курса</label>
+          <textarea
+            value={courseDescription}
+            onChange={(e) => setCourseDescription(e.target.value)}
+            required
+          ></textarea>
+        </div>
+        <button type="submit">{isEditingCourse ? 'Обновить курс' : 'Создать курс'}</button>
       </form>
+
+      {selectedCourseId && (
+        <>
+          <h2>{isEditingTopic ? 'Редактировать топик' : 'Создать новый топик'}</h2>
+          <form onSubmit={handleTopicSubmit} className="add-topic-form">
+            <div>
+              <label>Название топика</label>
+              <input
+                type="text"
+                value={topicName}
+                onChange={(e) => setTopicName(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label>Номер модуля</label>
+              <input
+                type="number"
+                value={moduleNumber}
+                onChange={(e) => setModuleNumber(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label>Позиция</label>
+              <input
+                type="number"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label>Содержимое (data_ref)</label>
+              <textarea
+                value={dataRef}
+                onChange={(e) => setDataRef(e.target.value)}
+                required
+              ></textarea>
+            </div>
+            <button type="submit">{isEditingTopic ? 'Обновить топик' : 'Создать топик'}</button>
+          </form>
+
+          <div className="topic-list">
+            <h2>Список топиков</h2>
+            <ul>
+              {topics.map((topic) => (
+                <li key={topic.id}>
+                  <span>{topic.name}</span>
+                  <button onClick={() => handleEditTopic(topic.id)}>Редактировать</button>
+                  <button onClick={() => handleDeleteTopic(topic.id)}>Удалить</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
+
+      <div className="course-list">
+        <h2>Список курсов</h2>
+        <ul>
+          {courses.map((course) => (
+            <li key={course.id}>
+              <span>{course.name}</span>
+              <button onClick={() => handleEditCourse(course.id)}>Редактировать</button>
+              <button onClick={() => handleDeleteCourse(course.id)}>Удалить</button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {successMessage && <div className="success-message">{successMessage}</div>}
     </div>
   );
 };

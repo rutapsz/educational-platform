@@ -1,94 +1,118 @@
 .add-course-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
   background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.add-course-container h1,
 .add-course-container h2 {
   text-align: center;
   color: #333;
+  margin-bottom: 20px;
 }
 
-.add-course-container label {
+.add-course-form,
+.add-topic-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.add-course-form label,
+.add-topic-form label {
   font-weight: bold;
-  color: #444;
-  display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 5px;
+  color: #555;
 }
 
-.add-course-container input[type="text"],
-.add-course-container textarea {
-  width: 95%;
-  padding: 0.8rem;
-  margin-bottom: 1rem;
+.add-course-form input,
+.add-course-form textarea,
+.add-topic-form input,
+.add-topic-form textarea {
+  width: 100%;
+  padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em;
+  margin-bottom: 10px;
 }
 
-.add-course-container textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.add-course-container button {
-  display: inline-block;
-  padding: 0.8rem 1.5rem;
-  margin-top: 1rem;
-  background-color: #808080;
+.add-course-form button,
+.add-topic-form button {
+  width: 50%;
+  padding: 10px;
+  background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: center;
+  font-size: 1.1em;
+  transition: background-color 0.3s;
+}
+
+.add-course-form button:hover,
+.add-topic-form button:hover {
+  background-color: #45a049;
+}
+
+.course-list,
+.topic-list {
+  margin-top: 30px;
+}
+
+.course-list ul,
+.topic-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.course-list li,
+.topic-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 10px;
+  background-color: #f1f1f1;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.course-list li button,
+.topic-list li button {
+  background-color: #ff4b5c;
+  border: none;
+  padding: 8px;
+  color: white;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.add-course-container button:hover {
-  background-color: #d11212;
+.course-list li button:hover,
+.topic-list li button:hover {
+  background-color: #ff333f;
 }
 
-.add-topic-button,
-.add-section-button {
-  background-color: #008CBA;
-  color: white;
-  margin-top: 1rem;
-  border: none;
-  padding: 0.6rem 1rem;
-  cursor: pointer;
-  border-radius: 4px;
+.success-message {
+  text-align: center;
+  color: green;
+  margin-top: 20px;
 }
 
-.add-topic-button:hover,
-.add-section-button:hover {
-  background-color: #007bb5;
-}
+@media (max-width: 768px) {
+  .add-course-container {
+    width: 95%;
+    padding: 10px;
+  }
 
-.topic-section {
-  border: 1px solid #e0e0e0;
-  padding: 1rem;
-  margin-top: 1.5rem;
-  border-radius: 8px;
-  background-color: #fff;
-}
-
-.topic-section h3,
-.topic-section h4 {
-  margin-bottom: 0.5rem;
-  color: #666;
-}
-
-.text-editor-container {
-  margin-top: 1rem;
-  margin-bottom: 2rem;
-}
-
-.text-editor-container .DraftEditor-root {
-  border: 1px solid #ccc;
-  min-height: 150px;
-  padding: 1rem;
-  border-radius: 5px;
-  background-color: #fff;
+  .add-course-form button,
+  .add-topic-form button {
+    width: 70%;
+  }
 }

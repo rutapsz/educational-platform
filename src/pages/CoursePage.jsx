@@ -1,71 +1,82 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Editor, EditorState, convertFromRaw } from 'draft-js';
-import './CoursePage.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const CoursePage = ({ courses }) => {
-  const { id } = useParams();
-  const course = courses.find(course => course.id === parseFloat(id));
+const CoursePage = () => {
+  const [courses, setCourses] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [topics, setTopics] = useState([]);
+  const [selectedTopicId, setSelectedTopicId] = useState(null);
+  const [topicContent, setTopicContent] = useState('');
 
-  if (!course) {
-    return <div>Курс не найден.</div>;
-  }
+  // Получение всех курсов
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/courses/');
+        setCourses(response.data);
+      } catch (error) {
+        console.error('Ошибка при загрузке курсов', error);
+      }
+    };
+    fetchCourses();
+  }, []);
 
-  const [activeTopicIndex, setActiveTopicIndex] = useState(0); // Track selected topic
-  const [activeSectionIndex, setActiveSectionIndex] = useState(null); // Track selected section
-
-  const handleTopicClick = (topicIndex) => {
-    setActiveTopicIndex(topicIndex);
-    setActiveSectionIndex(null); // Reset section when changing topic
+  // Получение топиков для выбранного курса
+  const fetchTopics = async (courseId) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/topics/?course=${courseId}`);
+      setTopics(response.data);
+      setSelectedCourseId(courseId);
+      setSelectedTopicId(null);
+      setTopicContent(''); // Сброс содержимого топика
+    } catch (error) {
+      console.error('Ошибка при загрузке топиков', error);
+    }
   };
 
-  const handleSectionClick = (sectionIndex) => {
-    setActiveSectionIndex(sectionIndex); // Set the active section
+  // Получение содержимого выбранного топика
+  const fetchTopicContent = async (topicId) => {
+    try {
+      const topic = topics.find((t) => t.id === topicId);
+      setSelectedTopicId(topicId);
+      setTopicContent(topic ? topic.data_ref : '');
+    } catch (error) {
+      console.error('Ошибка при загрузке содержимого топика', error);
+    }
   };
 
   return (
-    <div className="course-page-container">
-      <div className="sidebar">
-        <h3>Темы курса</h3>
-        <ul>
-          {course.topics.map((topic, topicIndex) => (
-            <li key={topicIndex}>
-              <div
-                className={`sidebar-topic ${activeTopicIndex === topicIndex ? 'active' : ''}`}
-                onClick={() => handleTopicClick(topicIndex)}
-              >
-                {topic.title}
-              </div>
-              <ul className="section-list">
-                {topic.sections.map((section, sectionIndex) => (
-                  <li key={sectionIndex}>
-                    <div
-                      className={`sidebar-section ${activeSectionIndex === sectionIndex ? 'active' : ''}`}
-                      onClick={() => handleSectionClick(sectionIndex)}
-                    >
-                      {section.title}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
+    <div>
+      <h1>Курсы</h1>
+      <div>
+        {courses.map((course) => (
+          <button key={course.id} onClick={() => fetchTopics(course.id)}>
+            {course.name}
+          </button>
+        ))}
       </div>
 
-      <div className="content">
-        {activeSectionIndex !== null && (
-          <div className="section-content">
-            <h4>{course.topics[activeTopicIndex].sections[activeSectionIndex].title}</h4>
-            <Editor 
-              editorState={EditorState.createWithContent(
-                convertFromRaw(JSON.parse(course.topics[activeTopicIndex].sections[activeSectionIndex].text))
-              )}
-              readOnly={true}
-            />
-          </div>
-        )}
-      </div>
+      {selectedCourseId && (
+        <div>
+          <h2>Топики</h2>
+          <ul>
+            {topics.map((topic) => (
+              <li key={topic.id}>
+                <button onClick={() => fetchTopicContent(topic.id)}>
+                  {topic.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {selectedTopicId && (
+        <div>
+          <h3>Содержимое топика</h3>
+          <div dangerouslySetInnerHTML={{ __html: topicContent }}></div>
+        </div>
+      )}
     </div>
   );
 };
