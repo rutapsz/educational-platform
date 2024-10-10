@@ -1,82 +1,84 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import './CoursePage.css';
 
 const CoursePage = () => {
-  const [courses, setCourses] = useState([]);
-  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const { id } = useParams();
   const [topics, setTopics] = useState([]);
-  const [selectedTopicId, setSelectedTopicId] = useState(null);
-  const [topicContent, setTopicContent] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [courseName, setCourseName] = useState('');
 
-  // Получение всех курсов
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchTopics = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/courses/');
-        setCourses(response.data);
+        // загружаем название курса
+        const courseResponse = await axios.get(`http://localhost:8000/api/courses/${id}/`);
+        setCourseName(courseResponse.data.name);
+
+        // загружаем топики курса
+        const topicsResponse = await axios.get(`http://localhost:8000/api/topics/?course=${id}`);
+        setTopics(topicsResponse.data);
+        
+        // первый топик выбранн по умолчанию
+        if (topicsResponse.data.length > 0) {
+          setSelectedTopic(topicsResponse.data[0]);
+        }
       } catch (error) {
-        console.error('Ошибка при загрузке курсов', error);
+        console.error('Ошибка при загрузке данных', error);
       }
     };
-    fetchCourses();
-  }, []);
+    fetchTopics();
+  }, [id]);
 
-  // Получение топиков для выбранного курса
-  const fetchTopics = async (courseId) => {
-    try {
-      const response = await axios.get(`http://localhost:8000/api/topics/?course=${courseId}`);
-      setTopics(response.data);
-      setSelectedCourseId(courseId);
-      setSelectedTopicId(null);
-      setTopicContent(''); // Сброс содержимого топика
-    } catch (error) {
-      console.error('Ошибка при загрузке топиков', error);
-    }
+  const handleTopicSelect = (topic) => {
+    setSelectedTopic(topic);
   };
 
-  // Получение содержимого выбранного топика
-  const fetchTopicContent = async (topicId) => {
-    try {
-      const topic = topics.find((t) => t.id === topicId);
-      setSelectedTopicId(topicId);
-      setTopicContent(topic ? topic.data_ref : '');
-    } catch (error) {
-      console.error('Ошибка при загрузке содержимого топика', error);
+  // Сортировка топиков по номеру модуля и позиции
+  const sortedTopics = topics.sort((a, b) => {
+    if (a.module === b.module) {
+      return a.position - b.position;
     }
-  };
+    return a.module - b.module;
+  });
+
+  // Группировка топиков по модулям
+  const groupedTopics = sortedTopics.reduce((groups, topic) => {
+    const { module } = topic;
+    if (!groups[module]) {
+      groups[module] = [];
+    }
+    groups[module].push(topic);
+    return groups;
+  }, {});
 
   return (
-    <div>
-      <h1>Курсы</h1>
-      <div>
-        {courses.map((course) => (
-          <button key={course.id} onClick={() => fetchTopics(course.id)}>
-            {course.name}
-          </button>
+    <div className="course-page-container">
+      <div className="topics-navigation">
+        <h2>Темы курса: {courseName}</h2> {/* Добавлено имя курса */}
+        {Object.keys(groupedTopics).map((module) => (
+          <div key={module}>
+            <h3>Модуль {module}</h3>
+            <ul>
+              {groupedTopics[module].map((topic) => (
+                <li
+                  key={topic.id}
+                  onClick={() => handleTopicSelect(topic)}
+                  className={selectedTopic?.id === topic.id ? 'active' : ''}
+                >
+                  {topic.name}
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
       </div>
-
-      {selectedCourseId && (
-        <div>
-          <h2>Топики</h2>
-          <ul>
-            {topics.map((topic) => (
-              <li key={topic.id}>
-                <button onClick={() => fetchTopicContent(topic.id)}>
-                  {topic.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {selectedTopicId && (
-        <div>
-          <h3>Содержимое топика</h3>
-          <div dangerouslySetInnerHTML={{ __html: topicContent }}></div>
-        </div>
-      )}
+      <div className="topic-content">
+        {selectedTopic && (
+          <div dangerouslySetInnerHTML={{ __html: selectedTopic.data_ref }} />
+        )}
+      </div>
     </div>
   );
 };
