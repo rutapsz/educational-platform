@@ -23,13 +23,7 @@ const Header = ({ openModal }) => {
       <nav>
         <ul className="menu">
           <li>
-            <Link to="/">Логотип с названием</Link>
-          </li>
-          <li>
-            <Link to="/courses">Курсы</Link>
-          </li>
-          <li>
-            <Link to="/test">Страница для тестов</Link>
+            <Link to="/">Лого Право Творчества</Link>
           </li>
           <li>
             <Link to="/add-course">Изменить курсы</Link>
