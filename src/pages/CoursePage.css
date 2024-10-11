@@ -41,3 +41,75 @@
   border-radius: 8px;
   background-color: #f9f9f9;
 }
+
+/* Стили для блока с тестами */
+.test-section {
+  padding: 20px;
+  margin: 20px 0;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.test-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.test-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.test-question {
+  margin-bottom: 20px;
+}
+
+.test-answer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.test-input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.test-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0px 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.test-radio,
+.test-checkbox {
+  margin-right: 10px;
+}
+
+.test-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.test-button:hover {
+  background-color: #0056b3;
+}
+
+.test-result {
+  font-size: 18px;
+  margin-top: 20px;
+  /* color: #28a745; */
+}

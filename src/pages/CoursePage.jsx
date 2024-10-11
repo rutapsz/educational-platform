@@ -7,13 +7,13 @@ const CoursePage = () => {
   const { id } = useParams();
   const [topics, setTopics] = useState([]);
   const [tests, setTests] = useState([]);
-  const [selectedTopic, setSelectedTopic] = useState(null);
-  const [selectedTest, setSelectedTest] = useState(null);
-  const [courseName, setCourseName] = useState('');
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
-  const [userAnswers, setUserAnswers] = useState({});
-  const [totalScore, setTotalScore] = useState(null);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedTest, setSelectedTest] = useState(null);
+  const [userResponses, setUserResponses] = useState({});
+  const [scores, setScores] = useState({});
+  const [courseName, setCourseName] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,8 +24,14 @@ const CoursePage = () => {
         const topicsResponse = await axios.get(`http://localhost:8000/api/topics/?course=${id}`);
         setTopics(topicsResponse.data);
 
-        const testsResponse = await axios.get(`http://localhost:8000/api/tests/?course=${id}`);
+        const testsResponse = await axios.get('http://127.0.0.1:8000/api/tests/');
         setTests(testsResponse.data);
+
+        const questionsResponse = await axios.get('http://127.0.0.1:8000/api/questions/');
+        setQuestions(questionsResponse.data);
+
+        const answersResponse = await axios.get('http://127.0.0.1:8000/api/answers/');
+        setAnswers(answersResponse.data);
 
         if (topicsResponse.data.length > 0) {
           setSelectedTopic(topicsResponse.data[0]);
@@ -34,114 +40,91 @@ const CoursePage = () => {
         console.error('Ошибка при загрузке данных', error);
       }
     };
-
     fetchData();
   }, [id]);
 
   const handleTopicSelect = (topic) => {
-    setSelectedTopic(topic);
     setSelectedTest(null);
+    setSelectedTopic(topic);
   };
 
-  // Обработка выбора теста
-  const handleTestSelect = async (test) => {
-    setSelectedTest(test);
+  const handleTestSelect = (test) => {
     setSelectedTopic(null);
+    setSelectedTest(test);
+  };
+
+  const handleSubmit = async (e, testId) => {
+    e.preventDefault();
+    let correctCount = 0;
+    let totalQuestions = 0;
+
+    questions.forEach(question => {
+      if (question.test === testId) {
+        totalQuestions++;
+        const questionAnswers = answers.filter(a => a.question === question.id);
+        const correctAnswers = questionAnswers.filter(a => a.is_correct);
+
+        if (questionAnswers.length === 1) {
+          const userAnswer = userResponses[question.id] || '';
+          if (userAnswer.toLowerCase() === questionAnswers[0].answer.toLowerCase()) {
+            correctCount++;
+          }
+        } else if (correctAnswers.length === 1) {
+          const userAnswer = userResponses[question.id];
+          if (userAnswer === correctAnswers[0].answer) {
+            correctCount++;
+          }
+        } else {
+          const userAnswers = userResponses[question.id] || [];
+          const isAllCorrect = correctAnswers.every(answer => userAnswers.includes(answer.answer));
+          const isAnyIncorrect = questionAnswers.some(answer => !answer.is_correct && userAnswers.includes(answer.answer));
+
+          if (isAllCorrect && !isAnyIncorrect) {
+            correctCount++;
+          }
+        }
+      }
+    });
+
+    setScores(prev => ({ ...prev, [testId]: { correct: correctCount, total: totalQuestions } }));
+
+    // Отправка результатов теста на сервер
+    const userId = localStorage.getItem('userId'); // ID пользователя из localStorage
+    const attemptData = {
+      user: userId,
+      test: testId,
+      // total_score: totalScore,
+      total: totalQuestions,
+    };
 
     try {
-      const questionsResponse = await axios.get(`http://localhost:8000/api/questions/?test=${test.id}`);
-      setQuestions(questionsResponse.data);
-
-      const answersResponse = await axios.get(`http://localhost:8000/api/answers/`);
-      setAnswers(answersResponse.data);
-    } catch (error) {
-      console.error('Ошибка при загрузке вопросов и ответов', error);
-    }
-  };
-
-  const handleAnswerInput = (questionId, answer) => {
-    setUserAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [questionId]: answer,
-    }));
-  };
-
-  const handleAnswerSelect = (questionId, answerId) => {
-    setUserAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [questionId]: answerId,
-    }));
-  };
-
-const handleSubmitTest = async () => {
-  let score = 0;
-
-  questions.forEach((question) => {
-    const correctAnswers = answers.filter((answer) => answer.question === question.id && answer.is_correct);
-    const userAnswer = userAnswers[question.id] || '';
-
-    
-    if (correctAnswers.length === 1 && typeof userAnswer === 'string') {
-      if (userAnswer.toLowerCase() === correctAnswers[0].answer.toLowerCase()) {
-        score += question.score;
-      }
-    } 
-    else if (correctAnswers.length === 1 && typeof userAnswer === 'number') {
-      if (correctAnswers[0].id === userAnswer) {
-        score += question.score;
-      }
-    } 
-    
-    else if (correctAnswers.length > 1) {
-      const userAnswerArray = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
-      const correctAnswerIds = correctAnswers.map((answer) => answer.id);
-
-      if (
-        userAnswerArray.length === correctAnswerIds.length &&
-        userAnswerArray.every((answerId) => correctAnswerIds.includes(answerId))
-      ) {
-        score += question.score;
-      }
-    }
-  });
-
-  setTotalScore(score);
-
-  // Отправлка результатов теста
-  const token = localStorage.getItem('token');
-  if (token) {
-    try {
-      const userResponse = await axios.get(`http://localhost:8000/api/users/?token=${token}`);
-      const userId = userResponse.data[0].id;
-
-      const previousResultResponse = await axios.get(
-        `http://localhost:8000/api/testresults/?user=${userId}&test=${selectedTest.id}`
-      );
-      const previousResult = previousResultResponse.data[0];
-
-      const data = {
-        user: userId,
-        test: selectedTest.id,
-        total_score: score > (previousResult?.total_score || 0) ? score : previousResult?.total_score,
-        try_numb: (previousResult?.try_numb || 0) + 1,
-        test_date: new Date(),
-      };
-
-      if (previousResult) {
-        await axios.put(`http://localhost:8000/api/testresults/${previousResult.id}/`, data, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      } else {
-        await axios.post('http://localhost:8000/api/testresults/', data, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
+      await axios.post('http://127.0.0.1:8000/api/testresults/', attemptData);
+      console.log('Результаты теста успешно отправлены на сервер');
     } catch (error) {
       console.error('Ошибка при отправке результатов теста', error);
     }
-  }
-};
+  };
 
+  const handleTextInputChange = (questionId, value) => {
+    setUserResponses(prev => ({ ...prev, [questionId]: value }));
+  };
+
+  const handleRadioChange = (questionId, value) => {
+    setUserResponses(prev => ({ ...prev, [questionId]: value }));
+  };
+
+  const handleCheckboxChange = (questionId, value) => {
+    setUserResponses(prev => {
+      const existingAnswers = prev[questionId] || [];
+      if (existingAnswers.includes(value)) {
+        return { ...prev, [questionId]: existingAnswers.filter(answer => answer !== value) };
+      } else {
+        return { ...prev, [questionId]: [...existingAnswers, value] };
+      }
+    });
+  };
+
+  // Сортировка топиков по номеру модуля и позиции
   const sortedTopics = topics.sort((a, b) => {
     if (a.module === b.module) {
       return a.position - b.position;
@@ -149,33 +132,25 @@ const handleSubmitTest = async () => {
     return a.module - b.module;
   });
 
-  const groupedTopicsAndTests = sortedTopics.reduce((groups, topic) => {
+  // Группировка топиков по модулям
+  const groupedTopics = sortedTopics.reduce((groups, topic) => {
     const { module } = topic;
     if (!groups[module]) {
-      groups[module] = { topics: [], tests: [] };
+      groups[module] = [];
     }
-    groups[module].topics.push(topic);
+    groups[module].push(topic);
     return groups;
   }, {});
-
-  tests.forEach(test => {
-    const { module } = test;
-    if (groupedTopicsAndTests[module]) {
-      groupedTopicsAndTests[module].tests.push(test);
-    } else {
-      groupedTopicsAndTests[module] = { topics: [], tests: [test] };
-    }
-  });
 
   return (
     <div className="course-page-container">
       <div className="topics-navigation">
-        <h2>Темы курса: {courseName}</h2>
-        {Object.keys(groupedTopicsAndTests).map((module) => (
+        <h2>Темы и тесты курса: {courseName}</h2> 
+        {Object.keys(groupedTopics).map((module) => (
           <div key={module}>
             <h3>Модуль {module}</h3>
             <ul>
-              {groupedTopicsAndTests[module].topics.map((topic) => (
+              {groupedTopics[module].map((topic) => (
                 <li
                   key={topic.id}
                   onClick={() => handleTopicSelect(topic)}
@@ -184,13 +159,13 @@ const handleSubmitTest = async () => {
                   {topic.name}
                 </li>
               ))}
-              {groupedTopicsAndTests[module].tests.map((test) => (
+              {tests.filter(test => test.module === parseInt(module)).map(test => (
                 <li
                   key={test.id}
                   onClick={() => handleTestSelect(test)}
                   className={selectedTest?.id === test.id ? 'active' : ''}
                 >
-                  Тест: {test.name}
+                  {test.name}
                 </li>
               ))}
             </ul>
@@ -202,38 +177,60 @@ const handleSubmitTest = async () => {
           <div dangerouslySetInnerHTML={{ __html: selectedTopic.data_ref }} />
         )}
         {selectedTest && (
-          <div>
-            <h2>{selectedTest.name}</h2>
-            {questions.map((question) => (
-              <div key={question.id}>
-                <p>{question.question}</p>
-                {answers.filter((answer) => answer.question === question.id).length === 1 ? (
-                  <input
-                    type="text"
-                    placeholder="Введите ваш ответ"
-                    onChange={(e) => handleAnswerInput(question.id, e.target.value)}
-                  />
-                ) : (
-                  answers
-                    .filter((answer) => answer.question === question.id)
-                    .map((answer) => (
-                      <div key={answer.id}>
-                        <label>
+          <div className="test-section">
+            <h3 className="test-title">{selectedTest.name}</h3>
+            <form className="test-form" onSubmit={(e) => handleSubmit(e, selectedTest.id)}>
+              {questions.filter(q => q.test === selectedTest.id).map(question => {
+                const questionAnswers = answers.filter(a => a.question === question.id);
+                const correctAnswers = questionAnswers.filter(a => a.is_correct);
+
+                return (
+                  <div key={question.id} className="test-question">
+                    <p>{question.question}</p>
+                    {questionAnswers.length === 1 ? (
+                      <input
+                        type="text"
+                        className="test-input"
+                        placeholder="Введите ваш ответ"
+                        value={userResponses[question.id] || ''}
+                        onChange={(e) => handleTextInputChange(question.id, e.target.value)}
+                      />
+                    ) : correctAnswers.length === 1 ? (
+                      questionAnswers.map(answer => (
+                        <div key={answer.id} className="test-answer">
                           <input
-                            type={answers.filter((a) => a.question === question.id && a.is_correct).length === 1 ? "radio" : "checkbox"}
+                            type="radio"
+                            className="test-radio"
                             name={`question-${question.id}`}
-                            value={answer.id}
-                            onChange={() => handleAnswerSelect(question.id, answer.id)}
+                            value={answer.answer}
+                            checked={userResponses[question.id] === answer.answer}
+                            onChange={() => handleRadioChange(question.id, answer.answer)}
                           />
-                          {answer.answer}
-                        </label>
-                      </div>
-                    ))
-                )}
-              </div>
-            ))}
-            <button onClick={handleSubmitTest}>Отправить ответы</button>
-            {totalScore !== null && <p>Правильные ответы: {totalScore} из {questions.reduce((total, question) => total + question.score, 0)}</p>}
+                          <label>{answer.answer}</label>
+                        </div>
+                      ))
+                    ) : (
+                      questionAnswers.map(answer => (
+                        <div key={answer.id} className="test-answer">
+                          <input
+                            type="checkbox"
+                            className="test-checkbox"
+                            value={answer.answer}
+                            checked={(userResponses[question.id] || []).includes(answer.answer)}
+                            onChange={() => handleCheckboxChange(question.id, answer.answer)}
+                          />
+                          <label>{answer.answer}</label>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                );
+              })}
+              <button type="submit" className="test-button">Проверить тест</button>
+            </form>
+            {scores[selectedTest.id] && (
+              <h3 className="test-result">Верные ответы: {scores[selectedTest.id].correct} из {scores[selectedTest.id].total}</h3>
+            )}
           </div>
         )}
       </div>
