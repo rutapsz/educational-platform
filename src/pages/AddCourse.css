@@ -5,6 +5,7 @@
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 5vh;
 }
 
 .add-course-container h1,
@@ -83,15 +84,26 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.course-list li span,
+.topic-list li span {
+  flex-grow: 1;
+}
+.course-list li .button-container,
+.topic-list li .button-container {
+  display: flex;
+  gap: 10px;
+}
+
 .course-list li button,
 .topic-list li button {
-  background-color: #ff4b5c;
+  background-color: rgb(199, 30, 30);
   border: none;
   padding: 8px;
   color: white;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-left: auto;
 }
 
 .course-list li button:hover,
