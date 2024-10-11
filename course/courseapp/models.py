@@ -1,73 +1,95 @@
 from django.db import models
 
 
-class Course(models.Model):
-    name = models.CharField(max_length=255)
-    topic = models.CharField(max_length=255)
-    session_count = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    max_students = models.PositiveIntegerField()
+class Answers(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    question = models.ForeignKey('questions', models.DO_NOTHING, blank=True, null=True)
+    answer = models.CharField(blank=True, null=True)
+    is_correct = models.BooleanField(blank=True, null=True)
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        db_table = 'answers'
 
-class Teacher(models.Model):
-    full_name = models.CharField(max_length=255)
-    birth_date = models.DateField()
-    specialization = models.TextField()
-    contact_info = models.TextField()
-    is_staff = models.BooleanField(default=True)
-    experience = models.PositiveIntegerField()
 
-    def __str__(self):
-        return self.full_name
+class Courses(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField()
+    main_info = models.CharField(blank=True, null=True)
 
-class Student(models.Model):
-    full_name = models.CharField(max_length=255)
-    birth_date = models.DateField()
-    contact_info = models.TextField()
+    class Meta:
+        db_table = 'courses'
 
-    def __str__(self):
-        return self.full_name
 
-class Grade(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    grade = models.CharField(max_length=2)
-    date = models.DateField()
+class Questions(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    test = models.ForeignKey('tests', models.DO_NOTHING, blank=True, null=True)
+    score = models.IntegerField(blank=True, null=True)
+    question = models.CharField(blank=True, null=True)
 
-    def __str__(self):
-        return f'{self.student.full_name} - {self.grade}'
+    class Meta:
+        db_table = 'questions'
 
-class LearningHistory(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    certificate_id = models.PositiveIntegerField(null=True, blank=True)
-    completion_date = models.DateField()
 
-    def __str__(self):
-        return f'{self.student.full_name} - {self.course.name}'
+class Readtopics(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey('users', models.DO_NOTHING, blank=True, null=True)
+    topic = models.ForeignKey('topics', models.DO_NOTHING, blank=True, null=True)
 
-class Material(models.Model):
-    name = models.CharField(max_length=255)
-    material_type = models.CharField(max_length=255)
-    condition = models.CharField(max_length=255)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'readtopics'
 
-    def __str__(self):
-        return self.name
 
-class Certificate(models.Model):
-    CERTIFICATE_CHOICES = [
-        ('certificate', 'Certificate'),
-        ('diploma', 'Diploma'),
-    ]
-    certificate_type = models.CharField(max_length=50, choices=CERTIFICATE_CHOICES)
-    issue_date = models.DateField()
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+class Testresults(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey('users', models.DO_NOTHING, blank=True, null=True)
+    test = models.ForeignKey('tests', models.DO_NOTHING, blank=True, null=True)
+    total_score = models.IntegerField(blank=True, null=True)
+    try_numb = models.SmallIntegerField(blank=True, null=True)
+    test_date = models.DateTimeField(blank=True, null=True)
 
-    def __str__(self):
-        return f'{self.student.full_name} - {self.certificate_type}'
+    class Meta:
+        db_table = 'testresults'
+
+
+class Tests(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    course = models.ForeignKey(Courses, models.DO_NOTHING, blank=True, null=True)
+    module = models.IntegerField(blank=True, null=True)
+    name = models.CharField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'tests'
+
+
+class Topics(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE, blank=True, null=True)
+    module = models.IntegerField(blank=True, null=True)
+    position = models.IntegerField(blank=True, null=True)
+    data_ref = models.CharField(blank=True, null=True)
+    name = models.CharField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'topics'
+
+
+class Userescoursesrel(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey('users', models.DO_NOTHING, blank=True, null=True)
+    course = models.ForeignKey(Courses, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        db_table = 'userescoursesRel'
+
+
+class Users(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    login = models.CharField(unique=True, max_length=32)
+    password = models.CharField()
+    email = models.CharField(unique=True, blank=True, null=True)
+    role = models.CharField(blank=True, null=True)
+    token = models.CharField(blank=True, null=True)
+    seance = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'users'

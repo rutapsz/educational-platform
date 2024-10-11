@@ -1,14 +1,13 @@
 from django.contrib import admin
 
-# Register your models here.
-from .models import Course, Teacher, Student, ClassGroup, Schedule, Grade, LearningHistory, Material, Certificate
+from .models import Answers, Courses, Questions, Readtopics, Testresults, Tests, Topics, Userescoursesrel, Users
 
-admin.site.register(Course)
-admin.site.register(Teacher)
-admin.site.register(Student)
-admin.site.register(ClassGroup)
-admin.site.register(Schedule)
-admin.site.register(Grade)
-admin.site.register(LearningHistory)
-admin.site.register(Material)
-admin.site.register(Certificate)
+admin.site.register(Answers)
+admin.site.register(Courses)
+admin.site.register(Questions)
+admin.site.register(Readtopics)
+admin.site.register(Testresults)
+admin.site.register(Tests)
+admin.site.register(Topics)
+admin.site.register(Userescoursesrel)
+admin.site.register(Users)
