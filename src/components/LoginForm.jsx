@@ -21,13 +21,15 @@ function LoginForm({ switchForm }) {
     e.preventDefault();
     
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/login/', {
-        login: loginData.login,
+      const response = await axios.post('http://127.0.0.1:8000/api/auth/login/', {
+        username: loginData.login,
         password: loginData.password
       });
 
+      console.log(response.data);
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
+      console.log(localStorage.getItem('access_tocken'));
 
 
       window.location.reload();

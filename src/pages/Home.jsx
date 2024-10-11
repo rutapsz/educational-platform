@@ -10,6 +10,7 @@ const Home = () => {
     const fetchCourses = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/courses/');
+        console.log(response)
         setCourses(response.data);
       } catch (error) {
         console.error('Ошибка при загрузке курсов', error);

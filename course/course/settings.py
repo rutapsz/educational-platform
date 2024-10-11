@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,12 +38,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'courses',
-    'rest_framework'
+    'courseapp',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -78,10 +83,10 @@ WSGI_APPLICATION = 'course.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'your_db_name',
-        'USER': 'your_db_user',
-        'PASSWORD': 'your_db_password',
-        'HOST': 'localhost',
+        'NAME': 'second',
+        'USER': 'sys_admin',
+        'PASSWORD': '123',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }
@@ -127,3 +132,42 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        #'rest_framework.permissions.IsAuthenticated',  
+        'rest_framework.permissions.AllowAny',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10), 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    
+    'ROTATE_REFRESH_TOKENS': False,  # Если True, refresh-токен будет обновляться при каждом запросе
+    'BLACKLIST_AFTER_ROTATION': True,  # Если True, старый refresh-токен будет помещен в черный список после обновления
+}
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
+    "http://127.0.0.1:3000",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+
+SECRET_KEY = 'ключ'

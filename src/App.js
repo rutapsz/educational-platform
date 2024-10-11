@@ -12,6 +12,7 @@ import LoginForm from './components/LoginForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import { convertToRaw, ContentState } from 'draft-js';
 import './App.css';
+import axios from "axios";
 
 const App = () => {
   const [token, setToken] = useState(null);
@@ -32,6 +33,11 @@ const App = () => {
   const switchForm = (formType) => {
     setShowRegister(formType === 'register');
   };
+
+  const setCSRF = async () => {
+    let csrfURL = "http://127.0.0.1:8000/api/setcsrf/";
+    const response = await axios.get(csrfURL);
+  }
 
   return (
     <Router>
