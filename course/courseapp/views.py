@@ -9,7 +9,7 @@ from .models import Answers, Courses, Questions, Readtopics, Testresults, Tests,
 from .serializers import (
     AnswersSerializer, CoursesSerializer, QuestionsSerializer, ReadtopicsSerializer,
     TestresultsSerializer, TestsSerializer, TopicsSerializer, UserescoursesrelSerializer, UsersSerializer,
-    UserLoginSerializer
+    UserLoginSerializer, CoursesItemsSerializer
 )
 # views.py
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -20,7 +20,7 @@ import json
 from .models import User as Users
 from rest_framework.authentication import SessionAuthentication
 
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, DjangoModelPermissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -60,43 +60,51 @@ class UserLogout(APIView):
 
 # Отвечает за операции создания, чтения, обновления и удаления
 class AnswersViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DjangoModelPermissions]
     queryset = Answers.objects.all()
     serializer_class = AnswersSerializer
 
 # Управление курсами через API
 
+class ViewCourses(APIView):
+    permission_classes =[AllowAny]
+    queryset = Courses.objects.all()
+    serializer_class = CoursesSerializer
+
+    def get(self, request):
+        return Response(CoursesItemsSerializer({'items': self.queryset.all()}).data['items'], status=status.HTTP_200_OK)
+
 
 class CoursesViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [DjangoModelPermissions]
     queryset = Courses.objects.all()
     serializer_class = CoursesSerializer
 
 
 # Включает создание, получение, редактирование и удаление вопросов
 class QuestionsViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DjangoModelPermissions]
     queryset = Questions.objects.all()
     serializer_class = QuestionsSerializer
 
 
 # Преобразует данные о прочитанных темах
 class ReadtopicsViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DjangoModelPermissions]
     queryset = Readtopics.objects.all()
     serializer_class = ReadtopicsSerializer
 
 
 # Управляет результатами тестов
 class TestresultsViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DjangoModelPermissions]
     queryset = Testresults.objects.all()
     serializer_class = TestresultsSerializer
 
 
 # Управляет тестами
 class TestsViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DjangoModelPermissions]
     queryset = Tests.objects.all()
     serializer_class = TestsSerializer
 
@@ -106,7 +114,7 @@ class TestsViewSet(viewsets.ModelViewSet):
 
 class TopicsViewSet(viewsets.ModelViewSet):
     queryset = Topics.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DjangoModelPermissions]
     serializer_class = TopicsSerializer
 
     def get_queryset(self):
@@ -119,14 +127,14 @@ class TopicsViewSet(viewsets.ModelViewSet):
 
 # Представление для связи пользователей с курсами
 class UserescoursesrelViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DjangoModelPermissions]
     queryset = Userescoursesrel.objects.all()
     serializer_class = UserescoursesrelSerializer
 
 
 # Управление пользователями через API
 class UsersViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DjangoModelPermissions]
     queryset = Users.objects.all()
     serializer_class = UsersSerializer
 

@@ -35,6 +35,8 @@ class TestresultsSerializer(serializers.ModelSerializer):
         model = Testresults
         fields = '__all__'
 
+class CoursesItemsSerializer(serializers.Serializer):
+    items = serializers.ListField(child=CoursesSerializer())
 
 class TestsSerializer(serializers.ModelSerializer):
     class Meta:

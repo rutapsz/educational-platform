@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './Home.css';
+import client from "../components/requests";
 
 const Home = ({openModal}) => {
   const [courses, setCourses] = useState([]);
@@ -9,7 +10,7 @@ const Home = ({openModal}) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/courses/');
+        const response = await client.get('/api/base/courses/');
         console.log(response)
         setCourses(response.data);
       } catch (error) {

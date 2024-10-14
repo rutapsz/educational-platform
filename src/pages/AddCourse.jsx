@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AddCourse.css';
+import client from "../components/requests";
 
 const AddCourse = () => {
   const [courses, setCourses] = useState([]);
@@ -21,7 +22,7 @@ const AddCourse = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/courses/',
+        const response = await client.get('http://localhost:8000/api/courses/',
           {withCredentials: true});
         setCourses(response.data);
       } catch (error) {
@@ -34,7 +35,7 @@ const AddCourse = () => {
   // Получение топиков по курсу
   const fetchTopics = async (courseId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/topics/?course=${courseId}`,
+      const response = await client.get(`http://localhost:8000/api/topics/?course=${courseId}`,
           {withCredentials: true});
       setTopics(response.data);
     } catch (error) {
@@ -65,16 +66,16 @@ const AddCourse = () => {
 
     try {
       if (isEditingCourse) {
-        await axios.put(`http://localhost:8000/api/courses/${selectedCourseId}/`, updatedCourse,
+        await client.put(`http://localhost:8000/api/courses/${selectedCourseId}/`, updatedCourse,
           {withCredentials: true});
         setSuccessMessage('Курс успешно обновлен!');
       } else {
-        const response = await axios.post('http://localhost:8000/api/courses/', updatedCourse,
+        const response = await client.post('http://localhost:8000/api/courses/', updatedCourse,
           {withCredentials: true});
         setSelectedCourseId(response.data.id);
         setSuccessMessage('Курс успешно создан!');
       }
-      const updatedCourses = await axios.get('http://localhost:8000/api/courses/',
+      const updatedCourses = await client.get('http://localhost:8000/api/courses/',
           {withCredentials: true});
       setCourses(updatedCourses.data);
       setIsEditingCourse(false);
@@ -110,10 +111,10 @@ const AddCourse = () => {
 
     try {
       if (isEditingTopic) {
-        await axios.put(`http://localhost:8000/api/topics/${selectedTopicId}/`, updatedTopic, {withCredentials: true});
+        await client.put(`http://localhost:8000/api/topics/${selectedTopicId}/`, updatedTopic, {withCredentials: true});
         setSuccessMessage('Топик успешно обновлен!');
       } else {
-        await axios.post('http://localhost:8000/api/topics/', updatedTopic,
+        await client.post('http://localhost:8000/api/topics/', updatedTopic,
             {withCredentials: true});
         setSuccessMessage('Топик успешно создан!');
       }
@@ -135,10 +136,10 @@ const AddCourse = () => {
   // Удаление курса
   const handleDeleteCourse = async (courseId) => {
     try {
-      await axios.delete(`http://localhost:8000/api/courses/${courseId}/`,
+      await client.delete(`http://localhost:8000/api/courses/${courseId}/`,
           {withCredentials: true});
       setSuccessMessage('Курс успешно удален!');
-      const updatedCourses = await axios.get('http://localhost:8000/api/courses/',
+      const updatedCourses = await client.get('http://localhost:8000/api/courses/',
           {withCredentials: true});
       setCourses(updatedCourses.data);
       setSelectedCourseId(null);
@@ -151,7 +152,7 @@ const AddCourse = () => {
   // Удаление топика
   const handleDeleteTopic = async (topicId) => {
     try {
-      await axios.delete(`http://localhost:8000/api/topics/${topicId}/`,
+      await client.delete(`http://localhost:8000/api/topics/${topicId}/`,
             {withCredentials: true});
       setSuccessMessage('Топик успешно удален!');
       fetchTopics(selectedCourseId);
