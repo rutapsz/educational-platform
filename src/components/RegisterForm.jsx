@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import client from "./requests";
 
 function RegisterForm({ switchForm }) {
   const [registerData, setRegisterData] = useState({
@@ -17,63 +18,35 @@ function RegisterForm({ switchForm }) {
       [name]: value,
     });
   };
-
-  const getCSRFToken = () => {
-    const csrfToken = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('csrftoken='))
-      ?.split('=')[1];
-    return csrfToken;
-  };
   
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     
     console.log('Register Data:', registerData);
-  
-    try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
-        },
-        body: JSON.stringify({
+
+    client.post('/api/registration/', {
           username: registerData.username,
           password: registerData.password,
           first_name: registerData.first_name,
           last_name: registerData.last_name,
           email: registerData.email,
-        }),
-      });
-  
-      if (response.ok) {
-        console.log('User registered successfully');
-        try {
-          const resp = await axios.post('http://127.0.0.1:8000/api/login/', {
+        }, {
+          withCredentials: true
+      }).then(res => {
+          console.log('User registered successfully');
+          client.post('/api/login_user/', {
             username: registerData.username,
             password: registerData.password
+          }).then(resp => {
+              localStorage.setItem('username', resp.data.username);
+              localStorage.setItem('staff', resp.data.staff);
+              window.location.reload();
+          }).catch(error => {
+              console.error('Ошибка при входе:', error.resp?.data || error);
           });
-
-          console.log(response);
-          localStorage.setItem('access_token', response.data.access);
-          localStorage.setItem('refresh_token', response.data.refresh);
-          console.log(localStorage.getItem('access_tocken'));
+      }).catch(error => {console.log('Registration failed:', error);})}
 
 
-          window.location.reload();
-        } catch (error) {
-          console.error('Ошибка при входе:', error.response?.data || error);
-          setErrorMessage(error.response?.data?.error || 'Ошибка при входе');
-        }
-      } else {
-        console.log('Registration failed:', response.status);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-  
   return (
     <form onSubmit={handleRegisterSubmit} className="form">
       <h2>Регистрация</h2>

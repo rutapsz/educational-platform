@@ -1,4 +1,7 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from .models import Answers, Courses, Questions, Readtopics, Testresults, Tests, Topics, Userescoursesrel
 from .models import User as Users
 
@@ -51,8 +54,19 @@ class UserescoursesrelSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    def check_user(self, clean_data):
+        user = authenticate(username=clean_data['username'],
+                            password=clean_data['password'])
+        if not user:
+            raise ValidationError("User not found")
+        return user
+
+
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = '__all__'
-

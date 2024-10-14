@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './Home.css';
 
-const Home = () => {
+const Home = ({openModal}) => {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
@@ -27,9 +27,15 @@ const Home = () => {
           <div className="course-card" key={course.id}>
             <h2>{course.name}</h2>
             <p>{course.main_info}</p>
-            <Link to={`/course/${course.id}`} className="view-course-button">
-              Зайти на курс
-            </Link>
+            { localStorage.getItem('username') ?
+                (<Link to={`/course/${course.id}`} className="view-course-button">
+                  Зайти на курс
+                </Link>) : (
+                    <Link className="view-course-button">
+                      Зайти на курс
+                    </Link>
+                )
+            }
           </div>
         ))}
       </div>

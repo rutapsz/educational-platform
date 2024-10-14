@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './CoursePage.css';
+import client from "../components/requests";
 
 const CoursePage = () => {
   const { id } = useParams();
@@ -13,11 +14,12 @@ const CoursePage = () => {
     const fetchTopics = async () => {
       try {
         // загружаем название курса
-        const courseResponse = await axios.get(`http://localhost:8000/api/courses/${id}/`);
+        const courseResponse = await client.get(`/api/courses/${id}/`);
         setCourseName(courseResponse.data.name);
 
         // загружаем топики курса
-        const topicsResponse = await axios.get(`http://localhost:8000/api/topics/?course=${id}`);
+        const topicsResponse = await client.get(
+            `/api/topics/?course=${id}`);
         setTopics(topicsResponse.data);
         
         // первый топик выбранн по умолчанию

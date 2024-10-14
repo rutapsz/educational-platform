@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import getCookie from './cookie'
+
+const client = axios.create({
+  baseURL: "http://localhost:8000"
+})
 
 function LoginForm({ switchForm }) {
   const [loginData, setLoginData] = useState({
@@ -19,24 +24,23 @@ function LoginForm({ switchForm }) {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    
-    try {
-      const response = await axios.post('http://127.0.0.1:8000/api/auth/login/', {
-        username: loginData.login,
-        password: loginData.password
-      });
-
-      console.log(response.data);
-      localStorage.setItem('access_token', response.data.access);
-      localStorage.setItem('refresh_token', response.data.refresh);
-      console.log(localStorage.getItem('access_tocken'));
-
-
-      window.location.reload();
-    } catch (error) {
-      console.error('Ошибка при входе:', error.response?.data || error);
-      setErrorMessage(error.response?.data?.error || 'Ошибка при входе');
-    }
+    setErrorMessage('');
+    console.log('-----');
+    await client.post("/api/login_user/",
+        {
+            username: loginData.login,
+            password: loginData.password,
+        }, {
+            withCredentials: true,
+        }).then(res => {
+            localStorage.setItem('username', res.data.username);
+            localStorage.setItem('staff', res.data.staff);
+            window.location.reload();
+        }).catch(error => {
+            setErrorMessage('Введены не корректные логин и пароль');
+    }) ;
+    console.log(getCookie('csrftoken'));
+    console.log('-----');
   };
 
   return (
