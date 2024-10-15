@@ -14,7 +14,7 @@ from .serializers import (
 # views.py
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 import json
 from .models import User as Users
@@ -31,6 +31,8 @@ from secrets import token_bytes
 from django.utils.decorators import method_decorator
 from rest_framework.response import Response
 
+from django.db.models import Avg, Count
+from reportlab.pdfgen import canvas
 
 class UserLogin(APIView):
     permission_classes = (AllowAny,)
@@ -161,3 +163,48 @@ class UserRegistration(APIView):
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
+
+class AdminReportsViewSet(viewsets.ViewSet):
+    permission_classes = [IsAdminUser]
+
+    def user_ratings(self, request):
+        report = Testresults.objects.values('user__login').annotate(avg_score=Avg('total_score')).order_by('-avg_score')
+        return Response(report)
+
+    def completion_stats(self, request):
+        report = Testresults.objects.filter(total_score__gte=80).values('user__login', 'course__name').annotate(
+            num_completed=Count('id'))
+        return Response(report)
+
+class CertificateViewSet(viewsets.ViewSet):
+    # Генерация PDF-сертификата
+    def generate_certificate(self, user, course):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="certificate_{user.username}.pdf"'
+        p = canvas.Canvas(response)
+        p.drawString(100, 750, "Certificate of Completion")
+        p.drawString(100, 700, f"Congratulations {user.username}!")
+        p.drawString(100, 650, f"You have successfully completed {course.name}.")
+        p.showPage()
+        p.save()
+        return response
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        course = get_object_or_404(Courses, id=kwargs.get('course_id'))
+
+        if Testresults.objects.filter(user=user, course=course, total_score__gte=80).exists():
+            pdf = self.generate_certificate(user, course)
+            self.send_certificate_via_email(user, course, pdf)
+            return Response({'message': 'Certificate sent successfully.'})
+        return Response({'error': 'Course not completed with required score.'}, status=400)
+
+    def send_certificate_via_email(self, user, course, pdf_content):
+        email = EmailMessage(
+            'Your Course Certificate',
+            f'Congratulations {user.username}, you have successfully completed {course.name}. Your certificate is attached.',
+            'admin@platform.com',
+            [user.email],
+        )
+        email.attach(f'certificate_{user.username}.pdf', pdf_content, 'application/pdf')
+        email.send()
