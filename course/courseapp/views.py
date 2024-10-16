@@ -137,6 +137,7 @@ class TestresultsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user  # Текущий авторизованный пользователь
         return Testresults.objects.filter(user=user)
+    
 
 # Управляет тестами
 class TestsViewSet(viewsets.ModelViewSet):
