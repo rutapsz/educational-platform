@@ -207,7 +207,7 @@ const CoursePage = () => {
   return (
     <div className="course-page-container">
       <div className="topics-navigation">
-        <h2>Темы и тесты курса: {courseName}</h2>
+        <h2>{courseName}</h2>
         {Object.keys(groupedTopics).map((module) => (
           <div key={module}>
             <h3>Модуль {module}</h3>
@@ -215,24 +215,45 @@ const CoursePage = () => {
               {groupedTopics[module].map((topic) => (
                 <li
                   key={topic.id}
-                  onClick={() => handleTopicSelect(topic)}
+                  onClick={() =>
+                    isModuleAccessible(topic.module) && handleTopicSelect(topic)
+                  }
+                  className={
+                    selectedTopic?.id === topic.id
+                      ? 'active'
+                      : isModuleAccessible(topic.module)
+                      ? ''
+                      : 'disabled'
+                  }
                 >
-                  {topic.name}
+                  {topic.name}{' '}
+                  {!isModuleAccessible(topic.module)}
                 </li>
               ))}
-              {tests.filter(test => test.module === parseInt(module)).map(test => (
-                <li
-                  key={test.id}
-                  onClick={() => handleTestSelect(test)}
-                >
-                  {test.name}
-                </li>
-              ))}
+              {tests
+                .filter((test) => test.module === parseInt(module))
+                .map((test) => (
+                  <li
+                    key={test.id}
+                    onClick={() =>
+                      isModuleAccessible(test.module) && handleTestSelect(test)
+                    }
+                    className={
+                      selectedTest?.id === test.id
+                        ? 'active'
+                        : isModuleAccessible(test.module)
+                        ? ''
+                        : 'disabled'
+                    }
+                  >
+                    {test.name}{' '}
+                    {!isModuleAccessible(test.module)}
+                  </li>
+                ))}
             </ul>
           </div>
         ))}
       </div>
-
       <div className="topic-content">
         {selectedTopic && (
           <div dangerouslySetInnerHTML={{ __html: selectedTopic.data_ref }} />
@@ -240,61 +261,85 @@ const CoursePage = () => {
         {selectedTest && (
           <div className="test-section">
             <h3 className="test-title">{selectedTest.name}</h3>
-            <form className="test-form" onSubmit={(e) => handleSubmit(e, selectedTest.id)}>
-              {questions.filter(q => q.test === selectedTest.id).map(question => {
-                const questionAnswers = answers.filter(a => a.question === question.id);
-                const correctAnswers = questionAnswers.filter(a => a.is_correct);
-
-                return (
-                  <div key={question.id} className="test-question">
-                    <p>{question.question}</p>
-                    {questionAnswers.length === 1 ? (
-                      <input
-                        type="text"
-                        className="test-input"
-                        placeholder="Введите ваш ответ"
-                        value={userResponses[question.id] || ''}
-                        onChange={(e) => setUserResponses(prev => ({ ...prev, [question.id]: e.target.value }))}
-                      />
-                    ) : correctAnswers.length === 1 ? (
-                      questionAnswers.map(answer => (
-                        <div key={answer.id} className="test-answer">
-                          <input
-                            type="radio"
-                            name={`question-${question.id}`}
-                            value={answer.answer}
-                            onChange={() => setUserResponses(prev => ({ ...prev, [question.id]: answer.answer }))}
-                          />
-                          <label>{answer.answer}</label>
-                        </div>
-                      ))
-                    ) : (
-                      questionAnswers.map(answer => (
-                        <div key={answer.id} className="test-answer">
-                          <input
-                            type="checkbox"
-                            value={answer.answer}
-                            onChange={() => {
-                              const currentAnswers = userResponses[question.id] || [];
-                              const newAnswers = currentAnswers.includes(answer.answer)
-                                ? currentAnswers.filter(a => a !== answer.answer)
-                                : [...currentAnswers, answer.answer];
-                              setUserResponses(prev => ({ ...prev, [question.id]: newAnswers }));
-                            }}
-                          />
-                          <label>{answer.answer}</label>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                );
-              })}
-              <button type="submit" className="test-button">Проверить тест</button>
+            <form
+              className="test-form"
+              onSubmit={(e) => handleSubmit(e, selectedTest.id)}
+            >
+              {questions
+                .filter((q) => q.test === selectedTest.id)
+                .map((question) => {
+                  const questionAnswers = answers.filter(
+                    (a) => a.question === question.id
+                  );
+                  const correctAnswers = questionAnswers.filter(
+                    (a) => a.is_correct
+                  );
+  
+                  return (
+                    <div key={question.id} className="test-question">
+                      <p>{question.question}</p>
+                      {questionAnswers.length === 1 ? (
+                        <input
+                          type="text"
+                          className="test-input enhanced-input"
+                          placeholder="Введите ваш ответ"
+                          value={userResponses[question.id] || ''}
+                          onChange={(e) =>
+                            handleTextInputChange(question.id, e.target.value)
+                          }
+                        />
+                      ) : correctAnswers.length === 1 ? (
+                        questionAnswers.map((answer) => (
+                          <div key={answer.id} className="test-answer">
+                            <input
+                              type="radio"
+                              className="test-radio"
+                              name={`question-${question.id}`}
+                              value={answer.answer}
+                              checked={
+                                userResponses[question.id] === answer.answer
+                              }
+                              onChange={() =>
+                                handleRadioChange(question.id, answer.answer)
+                              }
+                            />
+                            <label>{answer.answer}</label>
+                          </div>
+                        ))
+                      ) : (
+                        questionAnswers.map((answer) => (
+                          <div key={answer.id} className="test-answer">
+                            <input
+                              type="checkbox"
+                              className="test-checkbox"
+                              value={answer.answer}
+                              checked={(userResponses[question.id] || []).includes(
+                                answer.answer
+                              )}
+                              onChange={() =>
+                                handleCheckboxChange(question.id, answer.answer)
+                              }
+                            />
+                            <label>{answer.answer}</label>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  );
+                })}
+              <button type="submit" className="test-button">
+                Проверить тест
+              </button>
             </form>
+            {scores[selectedTest.id] && (
+              <h3 className="test-result">
+                Верные ответы: {scores[selectedTest.id].correct} из{' '}
+                {scores[selectedTest.id].total}
+              </h3>
+            )}
           </div>
         )}
       </div>
-
       {showResultModal && (
         <div className={`result-modal ${resultSuccess ? 'modal-success' : 'modal-fail'}`}>
           <div className="result-content">
@@ -303,7 +348,9 @@ const CoursePage = () => {
           </div>
         </div>
       )}
+    
     </div>
+    
   );
   
 };
