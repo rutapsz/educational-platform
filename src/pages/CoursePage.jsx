@@ -18,7 +18,7 @@ const CoursePage = () => {
   const [testResults, setTestResults] = useState([]);
   const [showResultModal, setShowResultModal] = useState(false);
   const [resultSuccess, setResultSuccess] = useState(false);
-
+  const [readTopics, setReadTopics] = useState([]);
   
 
   useEffect(() => {
@@ -31,6 +31,13 @@ const CoursePage = () => {
         setTestResults(resultsResponse.data);
       } catch (error) {
         console.error('Ошибка при загрузке результатов тестов:', error);
+      }
+      try {
+        const response = await client.get(`/api/readtopics/?user=${userId}`);
+        const readTopicIds = response.data.map((topic) => topic.id);
+        setReadTopics(readTopicIds);
+      } catch (error) {
+        console.error('Ошибка при загрузке прочитанных топиков:', error);
       }
     };
 
@@ -48,6 +55,21 @@ const CoursePage = () => {
     const scorePercentage = (result.total_score / scores[previousTest.id]?.total || 1) * 100;
     return scorePercentage >= 50;
   };
+
+  const markTopicAsRead = async (topicId) => {
+    const userId = localStorage.getItem('username');
+    if (!userId) return;
+  
+    try {
+      await client.post(`/api/readtopics/`, { user: userId, topic: topicId });
+      setReadTopics((prev) => [...prev, topicId]); // Обновляем локальное состояние
+    } catch (error) {
+      console.error('Ошибка при отметке топика как прочитанного:', error);
+    }
+  };
+
+  
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,9 +105,14 @@ const CoursePage = () => {
     fetchData();
   }, [id]);
 
+  
+
   const handleTopicSelect = (topic) => {
     setSelectedTest(null);
     setSelectedTopic(topic);
+    if (!readTopics.includes(topic.id)) {
+      markTopicAsRead(topic.id);
+    }
   };
 
   const handleTestSelect = (test) => {
@@ -145,12 +172,11 @@ const CoursePage = () => {
       user: userId,
       test: testId,
       total_score: correctCount,
-      try_numb: 1, // Можно сделать динамическим, если это важно
+      try_numb: 1, 
       test_date: new Date().toISOString(),
     };
   
     try {
-      // Отправка данных через POST
       const response = await client.post('http://localhost:8000/api/testresults/', attemptData, { withCredentials: true });
       setScores(response.data);
       console.log("Результаты успешно отправлены:", response.data);
@@ -215,18 +241,19 @@ const CoursePage = () => {
               {groupedTopics[module].map((topic) => (
                 <li
                   key={topic.id}
-                  onClick={() =>
-                    isModuleAccessible(topic.module) && handleTopicSelect(topic)
-                  }
-                  className={
-                    selectedTopic?.id === topic.id
-                      ? 'active'
-                      : isModuleAccessible(topic.module)
-                      ? ''
-                      : 'disabled'
-                  }
+                  onClick={() => isModuleAccessible(topic.module) && handleTopicSelect(topic)}
+                    className={`${
+                      selectedTopic?.id === topic.id
+                        ? 'active'
+                        : readTopics.includes(topic.id)
+                        ? 'read'
+                        : isModuleAccessible(topic.module)
+                        ? ''
+                        : 'disabled'
+                    }`}
                 >
-                  {topic.name}{' '}
+                  {topic.name}
+                  {readTopics.includes(topic.id) && <span>✔</span>}
                   {!isModuleAccessible(topic.module)}
                 </li>
               ))}

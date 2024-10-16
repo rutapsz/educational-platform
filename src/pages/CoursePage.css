@@ -198,3 +198,12 @@
 .close-button:hover {
   background-color: #1565c0;
 }
+.read {
+  color: green;
+  font-weight: bold;
+}
+
+.read span {
+  margin-left: 5px;
+  color: green;
+}
