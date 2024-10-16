@@ -7,9 +7,9 @@ body, html {
 
 header {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0vh;
+  left: 5vw;
+  right: 5vw;
   height: 10vh;
   background-color: #1E90FF;
   color: #fff;
@@ -19,6 +19,8 @@ header {
   padding: 0 20px;
   box-sizing: border-box;
   z-index: 1000;
+  border-radius: 100px; /* Скругляем все углы */
+  margin: 1vh 1vw; 
 }
 
 nav {
@@ -56,7 +58,7 @@ nav ul {
 }
 
 nav ul li {
-  margin-left: 40px; 
+  margin-left: 40px;
 }
 
 nav ul li a {
@@ -64,20 +66,19 @@ nav ul li a {
   text-decoration: none;
   font-size: 1.2em;
 }
-  
-  @media (max-width: 768px) {
-    header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-  
-    nav ul {
-        flex-direction: column;
-        margin-top: 10px;
-    }
-  
-    nav ul li {
-        margin: 10px 0;
-    }
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
+
+  nav ul {
+    flex-direction: column;
+    margin-top: 10px;
+  }
+
+  nav ul li {
+    margin: 10px 0;
+  }
+}

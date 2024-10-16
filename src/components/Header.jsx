@@ -27,7 +27,7 @@ const Header = ({ openModal }) => {
       <nav>
         <ul className="menu">
           <li>
-            <Link to="/">Лого Право Творчества</Link>
+            <Link to="/">Право Творчества</Link>
           </li>
           {localStorage.getItem('staff') === 'true' ? (
           <li>
