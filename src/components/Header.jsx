@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
 import axios from "axios";
+// import logo from './logo.png';
 
 const Header = ({ openModal }) => {
 
@@ -26,6 +27,11 @@ const Header = ({ openModal }) => {
     <header>
       <nav>
         <ul className="menu">
+          {/* <li>
+            <Link to="/">
+              <img src={logo} alt="Логотип" style={{ width: '100px', height: 'auto' }} />
+            </Link>
+          </li> */}
           <li>
             <Link to="/">Право Творчества</Link>
           </li>

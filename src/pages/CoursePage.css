@@ -207,3 +207,12 @@
   margin-left: 5px;
   color: green;
 }
+.read-topic {
+  color: green; /* Или любой другой стиль для прочитанных топиков */
+  font-weight: bold;
+}
+
+.read-topic::before {
+  content: '✔'; /* Галочка перед названием топика */
+  margin-right: 8px;
+}

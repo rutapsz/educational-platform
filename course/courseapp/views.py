@@ -78,9 +78,21 @@ class ViewCourses(APIView):
 
 
 class CoursesViewSet(viewsets.ModelViewSet):
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
     queryset = Courses.objects.all()
     serializer_class = CoursesSerializer
+    
+
+class UserescoursesrelViewSet(viewsets.ModelViewSet):
+    queryset = Userescoursesrel.objects.all()
+    serializer_class = UserescoursesrelSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.query_params.get('user')
+        if user:
+            return self.queryset.filter(user_id=user)
+        return self.queryset
 
 
 # Включает создание, получение, редактирование и удаление вопросов
@@ -92,7 +104,7 @@ class QuestionsViewSet(viewsets.ModelViewSet):
 
 # Преобразует данные о прочитанных темах
 class ReadtopicsViewSet(viewsets.ModelViewSet):
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
     queryset = Readtopics.objects.all()
     serializer_class = ReadtopicsSerializer
 
@@ -164,14 +176,14 @@ class TopicsViewSet(viewsets.ModelViewSet):
 
 # Представление для связи пользователей с курсами
 class UserescoursesrelViewSet(viewsets.ModelViewSet):
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
     queryset = Userescoursesrel.objects.all()
     serializer_class = UserescoursesrelSerializer
 
 
 # Управление пользователями через API
 class UsersViewSet(viewsets.ModelViewSet):
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [IsAuthenticated]
     queryset = Users.objects.all()
     serializer_class = UsersSerializer
 

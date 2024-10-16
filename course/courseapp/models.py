@@ -79,7 +79,7 @@ class Userescoursesrel(models.Model):
     course = models.ForeignKey(Courses, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
-        db_table = 'userescoursesRel'
+        db_table = 'userescoursesrel'
 
 
 class Users(models.Model):

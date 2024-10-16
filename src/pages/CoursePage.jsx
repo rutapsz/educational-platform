@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import './CoursePage.css';
 import client from "../components/requests";
 
@@ -20,57 +19,6 @@ const CoursePage = () => {
   const [resultSuccess, setResultSuccess] = useState(false);
   const [readTopics, setReadTopics] = useState([]);
   
-
-  useEffect(() => {
-    const fetchTestResults = async () => {
-      const userId = localStorage.getItem('username');
-      if (!userId) return;
-
-      try {
-        const resultsResponse = await client.get(`/api/testresults/?user=${userId}`);
-        setTestResults(resultsResponse.data);
-      } catch (error) {
-        console.error('Ошибка при загрузке результатов тестов:', error);
-      }
-      try {
-        const response = await client.get(`/api/readtopics/?user=${userId}`);
-        const readTopicIds = response.data.map((topic) => topic.id);
-        setReadTopics(readTopicIds);
-      } catch (error) {
-        console.error('Ошибка при загрузке прочитанных топиков:', error);
-      }
-    };
-
-    fetchTestResults();
-  }, []);
-
-  // Функция для проверки доступности модуля
-  const isModuleAccessible = (module) => {
-    const previousTest = tests.find(test => test.module === module - 1);
-    if (!previousTest) return true; // Если нет предыдущего теста, разблокируем
-
-    const result = testResults.find(result => result.test === previousTest.id);
-    if (!result) return false;
-
-    const scorePercentage = (result.total_score / scores[previousTest.id]?.total || 1) * 100;
-    return scorePercentage >= 50;
-  };
-
-  const markTopicAsRead = async (topicId) => {
-    const userId = localStorage.getItem('username');
-    if (!userId) return;
-  
-    try {
-      await client.post(`/api/readtopics/`, { user: userId, topic: topicId });
-      setReadTopics((prev) => [...prev, topicId]); // Обновляем локальное состояние
-    } catch (error) {
-      console.error('Ошибка при отметке топика как прочитанного:', error);
-    }
-  };
-
-  
-  
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -83,7 +31,7 @@ const CoursePage = () => {
         setTopics(topicsResponse.data);
 
         // Загружаем тесты
-        const testsResponse = await client.get('/api/tests/');
+        const testsResponse = await client.get(`/api/tests/?course=${id}`);
         setTests(testsResponse.data);
 
         // Загружаем вопросы
@@ -104,17 +52,103 @@ const CoursePage = () => {
     };
     fetchData();
   }, [id]);
+  useEffect(() => {
+    const fetchTestResults = async () => {
+      const userId = localStorage.getItem('username');
+      if (!userId) return;
 
+      try {
+        const resultsResponse = await client.get(`/api/testresults/?user=${userId}`);
+        setTestResults(resultsResponse.data);
+      } catch (error) {
+        console.error('Ошибка при загрузке результатов тестов:', error);
+      }
+      
+    };
+
+    fetchTestResults();
+  }, []);
+  useEffect(() => {
+    const fetchReadTopics = async () => {
+      const userId = localStorage.getItem('username');
+      if (!userId) return;
+  
+      try {
+        const readTopicsResponse = await client.get(`/api/readtopics/?user=${userId}`);
+        
+        // Преобразуем данные в формат объекта { topicId: true }
+        const readTopicsData = readTopicsResponse.data.reduce((acc, topicData) => {
+          acc[topicData.topic] = true;  // Используем topic как ключ и ставим true, если прочитан
+          return acc;
+        }, {});
+  
+        // Логируем для проверки
+        console.log('Прочитанные топики после преобразования:', readTopicsData);
+        
+        // Обновляем состояние с прочитанными топиками
+        setReadTopics(readTopicsData);
+      } catch (error) {
+        console.error('Ошибка при загрузке прочитанных топиков:', error);
+      }
+    };
+  
+    fetchReadTopics();
+  }, []);
+  // Функция для проверки доступности модуля
+  const isModuleAccessible = (module) => {
+    const previousTest = tests.find(test => test.module === module - 1);
+    if (!previousTest) return true; // Если нет предыдущего теста, разблокируем модуль
+  
+    const result = testResults.find(result => result.test === previousTest.id);
+    if (!result) return false; // Если результата теста нет, блокируем модуль
+  
+    // Проверяем, что результат теста и количество вопросов существуют
+    const correctScore = result.total_score || 0;
+    const totalQuestions = scores[previousTest.id]?.total || 0;
+  
+    // // Если в тесте нет вопросов, считаем, что тест не пройден
+    // if (totalQuestions === 0) return false;
+  
+    // Рассчитываем процент прохождения
+    const scorePercentage = (correctScore / totalQuestions) * 100;
+  
+    // Возвращаем доступность модуля только если процент >= 50
+    return scorePercentage >= 50;
+  };
   
 
-  const handleTopicSelect = (topic) => {
-    setSelectedTest(null);
-    setSelectedTopic(topic);
-    if (!readTopics.includes(topic.id)) {
-      markTopicAsRead(topic.id);
+  const markTopicAsRead = async (topicId) => {
+    const userId = localStorage.getItem('username');
+    if (!userId) return;
+  
+    try {
+      await client.post(`/api/readtopics/`, { user: userId, topic: topicId });
+      setReadTopics((prev) => [...prev, topicId]); // Обновляем локальное состояние
+    } catch (error) {
+      console.error('Ошибка при отметке топика как прочитанного:', error);
     }
   };
 
+  const handleTopicSelect = async (topic) => {
+    setSelectedTest(null);
+    setSelectedTopic(topic);
+  
+    // Обновляем статус прочитанного топика
+    if (!readTopics[topic.id]) {
+      try {
+        const userId = localStorage.getItem('username');
+        await client.post(`/api/readtopics/`, { user: userId, topic: topic.id });
+        
+        setReadTopics((prev) => ({
+          ...prev,
+          [topic.id]: true,
+        }));
+      } catch (error) {
+        console.error('Ошибка при обновлении статуса прочитанного топика:', error);
+      }
+    }
+  };
+  
   const handleTestSelect = (test) => {
     setSelectedTopic(null);
     setSelectedTest(test);
@@ -153,7 +187,8 @@ const CoursePage = () => {
         }
       }
     });
-  
+    
+
     setScores(prev => ({ ...prev, [testId]: { correct: correctCount, total: totalQuestions } }));
     
     const scorePercent = (correctCount / totalQuestions) * 100;
@@ -238,25 +273,26 @@ const CoursePage = () => {
           <div key={module}>
             <h3>Модуль {module}</h3>
             <ul>
-              {groupedTopics[module].map((topic) => (
-                <li
-                  key={topic.id}
-                  onClick={() => isModuleAccessible(topic.module) && handleTopicSelect(topic)}
-                    className={`${
-                      selectedTopic?.id === topic.id
-                        ? 'active'
-                        : readTopics.includes(topic.id)
-                        ? 'read'
-                        : isModuleAccessible(topic.module)
-                        ? ''
-                        : 'disabled'
-                    }`}
-                >
-                  {topic.name}
-                  {readTopics.includes(topic.id) && <span>✔</span>}
-                  {!isModuleAccessible(topic.module)}
-                </li>
-              ))}
+            {groupedTopics[module].map((topic) => (
+    <li
+      key={topic.id}
+      onClick={() =>
+        isModuleAccessible(topic.module) && handleTopicSelect(topic)
+      }
+      className={`${
+        selectedTopic?.id === topic.id
+          ? 'active'
+          : isModuleAccessible(topic.module)
+          ? readTopics[topic.id]
+            ? 'read-topic'  // Если топик прочитан, добавляем класс для подсветки
+            : ''
+          : 'disabled'
+      }`}
+    >
+      {topic.name}{' '}
+      {!isModuleAccessible(topic.module)}
+    </li>
+  ))}
               {tests
                 .filter((test) => test.module === parseInt(module))
                 .map((test) => (

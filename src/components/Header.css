@@ -19,7 +19,7 @@ header {
   padding: 0 20px;
   box-sizing: border-box;
   z-index: 1000;
-  border-radius: 100px; /* Скругляем все углы */
+  border-radius: 100px;
   margin: 1vh 1vw; 
 }
 
