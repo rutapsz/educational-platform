@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
+import axios from "axios";
 
 const Header = ({ openModal }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem('access_token');
-    setIsAuthenticated(!!accessToken);
-  }, []);
-
-  const handleLogout = () => {
-    // Удаляем токены из localStorage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    setIsAuthenticated(false);
-    window.location.reload();
+  const handleLogout =  () => {
+    axios.post("http://localhost:8000/api/logout_user/",
+        {},
+        {
+          withCredentials: true,
+          withXSRFToken: true,
+        }).then(res => {
+        localStorage.setItem('username', '');
+        localStorage.setItem('staff', '');
+        window.location.replace('http://localhost:3000/');
+        }).catch(error => {
+            localStorage.setItem('username', '');
+            localStorage.setItem('staff', '');
+            window.location.replace('http://localhost:3000/');
+        });
   };
-
+  console.log(localStorage.getItem('username'));
   return (
     <header>
       <nav>
@@ -25,12 +29,13 @@ const Header = ({ openModal }) => {
           <li>
             <Link to="/">Лого Право Творчества</Link>
           </li>
+          {localStorage.getItem('staff') === 'true' ? (
           <li>
             <Link to="/add-course">Изменить курсы</Link>
-          </li>
+          </li> ) : (<li></li>)}
         </ul>
         <ul className="authorization">
-          {isAuthenticated ? (
+          {localStorage.getItem('username') ? (
             <>
               <li>
                 <Link to="/profile">Профиль</Link>

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import client from "./requests";
 
 function RegisterForm({ switchForm }) {
   const [registerData, setRegisterData] = useState({
-    login: '',
+    username: '',
     password: '',
+    first_name: '',
+    last_name: '',
     email: '',
   });
 
@@ -15,47 +18,37 @@ function RegisterForm({ switchForm }) {
       [name]: value,
     });
   };
-
-  const getCSRFToken = () => {
-    const csrfToken = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('csrftoken='))
-      ?.split('=')[1];
-    return csrfToken;
-  };
   
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     
     console.log('Register Data:', registerData);
-  
-    try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
-        },
-        body: JSON.stringify({
-          login: registerData.login,
+
+    client.post('/api/registration/', {
+          userid: registerData.id,
+          username: registerData.username,
           password: registerData.password,
+          first_name: registerData.first_name,
+          last_name: registerData.last_name,
           email: registerData.email,
-          role: 'user', 
-          token: null,
-          seance: null
-        }),
-      });
-  
-      if (response.ok) {
-        console.log('User registered successfully');
-      } else {
-        console.log('Registration failed:', response.status);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-  
+        }, {
+          withCredentials: true
+      }).then(res => {
+          console.log('User registered successfully');
+          client.post('/api/login_user/', {
+            username: registerData.username,
+            password: registerData.password
+          }).then(resp => {
+              localStorage.setItem('userid', resp.data.userid);
+              localStorage.setItem('username', resp.data.username);
+              localStorage.setItem('staff', resp.data.staff);
+              window.location.reload();
+          }).catch(error => {
+              console.error('Ошибка при входе:', error.resp?.data || error);
+          });
+      }).catch(error => {console.log('Registration failed:', error);})}
+
+
   return (
     <form onSubmit={handleRegisterSubmit} className="form">
       <h2>Регистрация</h2>
@@ -63,8 +56,8 @@ function RegisterForm({ switchForm }) {
         <label>Логин:</label>
         <input
           type="text"
-          name="login"
-          value={registerData.login}
+          name="username"
+          value={registerData.username}
           onChange={handleRegisterChange}
         />
       </div>
@@ -74,6 +67,24 @@ function RegisterForm({ switchForm }) {
           type="password"
           name="password"
           value={registerData.password}
+          onChange={handleRegisterChange}
+        />
+      </div>
+            <div>
+        <label>Фамилия:</label>
+        <input
+          type="text"
+          name="last_name"
+          value={registerData.last_name}
+          onChange={handleRegisterChange}
+        />
+      </div>
+            <div>
+        <label>Имя:</label>
+        <input
+          type="text"
+          name="first_name"
+          value={registerData.first_name}
           onChange={handleRegisterChange}
         />
       </div>

@@ -1,8 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserProfileView
+from .views import UserProfileView, UserLogin, UserLogout, UserRegistration
 from .views import (
-    AnswersViewSet, CoursesViewSet, QuestionsViewSet, ReadtopicsViewSet, 
+    AnswersViewSet, CoursesViewSet, QuestionsViewSet, ReadtopicsViewSet, ViewCourses,
     TestresultsViewSet, TestsViewSet, TopicsViewSet, UserescoursesrelViewSet, UsersViewSet
 )
 
@@ -15,9 +15,15 @@ router.register(r'testresults', TestresultsViewSet)
 router.register(r'tests', TestsViewSet)
 router.register(r'topics', TopicsViewSet)
 router.register(r'userescoursesrel', UserescoursesrelViewSet)
-router.register(r'users', UsersViewSet)
+router.register(r'user', UsersViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('auth/', include('rest_framework.urls')),
     path('users/me/', UserProfileView.as_view(), name='user-profile'),
+    path('login_user/', UserLogin.as_view(), name='login'),
+    path('logout_user/', UserLogout.as_view(), name='logout'),
+    path('registration/', UserRegistration.as_view(), name='registration'),
+    path('base/courses/', ViewCourses.as_view(), name='courses')
 ]
+

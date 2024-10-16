@@ -1,38 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import axios from "axios";
+import client from "../components/requests";
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchProfile = async () => {
-    const token = localStorage.getItem('token'); // Получите токен из localStorage
-    if (!token) {
-      setError('Токен не найден');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/me/', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUserData(data);
-      } else {
-        setError('Ошибка при получении профиля: ' + response.status);
-      }
-    } catch (err) {
-      setError('Ошибка: ' + err.message);
-    }
+  const get_profile =  () => {
+        client.get(`/api/user/${localStorage.getItem('username')}/`, {
+            withCredentials: true,
+        }).then(res => {
+          setUserData(res.data);
+        }).catch(error => {
+          setError(error);
+        });
   };
 
+
   useEffect(() => {
-    fetchProfile(); // Вызов функции для получения данных профиля при загрузке компонента
+    get_profile(); // Вызов функции для получения данных профиля при загрузке компонента
   }, []);
 
   return (
@@ -41,9 +27,10 @@ const ProfilePage = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {userData ? (
         <div>
-          <p><strong>Логин:</strong> {userData.login}</p>
+          <p><strong>Логин:</strong> {userData.username}</p>
+          <p><strong>Фамилия:</strong> {userData.first_name}</p>
+          <p><strong>Имя:</strong> {userData.last_name}</p>
           <p><strong>Email:</strong> {userData.email}</p>
-          <p><strong>Роль:</strong> {userData.role}</p>
         </div>
       ) : (
         <p>Загрузка данных профиля...</p>

@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './Home.css';
+import client from "../components/requests";
 
-const Home = () => {
+const Home = ({openModal}) => {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/courses/');
+        const response = await client.get('/api/base/courses/');
+        console.log(response)
         setCourses(response.data);
       } catch (error) {
         console.error('Ошибка при загрузке курсов', error);
@@ -26,9 +28,15 @@ const Home = () => {
           <div className="course-card" key={course.id}>
             <h2>{course.name}</h2>
             <p>{course.main_info}</p>
-            <Link to={`/course/${course.id}`} className="view-course-button">
-              Зайти на курс
-            </Link>
+            { localStorage.getItem('username') ?
+                (<Link to={`/course/${course.id}`} className="view-course-button">
+                  Зайти на курс
+                </Link>) : (
+                    <Link className="view-course-button">
+                      Зайти на курс
+                    </Link>
+                )
+            }
           </div>
         ))}
       </div>

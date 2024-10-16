@@ -1,82 +1,156 @@
+import time
+
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password, check_password
-from .models import Answers, Courses, Questions, Readtopics, Testresults, Tests, Topics, Userescoursesrel, Users
+from .models import Answers, Courses, Questions, Readtopics, Testresults, Tests, Topics, Userescoursesrel
 from .serializers import (
-    AnswersSerializer, CoursesSerializer, QuestionsSerializer, ReadtopicsSerializer, 
-    TestresultsSerializer, TestsSerializer, TopicsSerializer, UserescoursesrelSerializer, UsersSerializer
+    AnswersSerializer, CoursesSerializer, QuestionsSerializer, ReadtopicsSerializer,
+    TestresultsSerializer, TestsSerializer, TopicsSerializer, UserescoursesrelSerializer, UsersSerializer,
+    UserLoginSerializer, CoursesItemsSerializer
 )
-
-
 # views.py
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 import json
-from .models import Users
+from .models import User as Users
+from rest_framework.authentication import SessionAuthentication
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, DjangoModelPermissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.decorators import permission_required
+from secrets import token_bytes
+
+from django.utils.decorators import method_decorator
+from rest_framework.response import Response
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from django.db.models import Max
+
+class UserLogin(APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        data = request.data
+        serializer = UserLoginSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.check_user(data)
+            login(request, user)
+            user = Users.objects.filter(username=data['username']).first()
+            data['staff'] = user.is_staff
+            data['username'] = user.id
+            return Response(data, status=status.HTTP_200_OK)
 
 
+class UserLogout(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request):
+        print('isAllowed')
+        logout(request)
+        return Response(status=status.HTTP_200_OK)
 
 
-# логика входа
-@csrf_exempt
-def login_user(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            login = data.get('login')
-            password = data.get('password')
-
-            # Попробуем найти пользователя по логину и паролю
-            user = Users.objects.get(login=login, password=password)
-            
-            # Генерация токена
-            refresh = RefreshToken.for_user(user)
-            return JsonResponse({
-                'message': 'Успех',
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
-            }, status=200)
-        except Users.DoesNotExist:
-            return JsonResponse({'error': 'Неверный логин или пароль'}, status=400)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Неверный JSON'}, status=400)
-    return JsonResponse({'error': 'Неверный method'}, status=400)
-
-
-
+# Отвечает за операции создания, чтения, обновления и удаления
+class AnswersViewSet(viewsets.ModelViewSet):
+    permission_classes = [DjangoModelPermissions]
+    queryset = Answers.objects.all()
+    serializer_class = AnswersSerializer
 
 # Управление курсами через API
+
+class ViewCourses(APIView):
+    permission_classes =[AllowAny]
+    queryset = Courses.objects.all()
+    serializer_class = CoursesSerializer
+
+    def get(self, request):
+        return Response(CoursesItemsSerializer({'items': self.queryset.all()}).data['items'], status=status.HTTP_200_OK)
+
+
 class CoursesViewSet(viewsets.ModelViewSet):
+    permission_classes = [DjangoModelPermissions]
     queryset = Courses.objects.all()
     serializer_class = CoursesSerializer
 
 
+# Включает создание, получение, редактирование и удаление вопросов
+class QuestionsViewSet(viewsets.ModelViewSet):
+    permission_classes = [DjangoModelPermissions]
+    queryset = Questions.objects.all()
+    serializer_class = QuestionsSerializer
+
 
 # Преобразует данные о прочитанных темах
 class ReadtopicsViewSet(viewsets.ModelViewSet):
+    permission_classes = [DjangoModelPermissions]
     queryset = Readtopics.objects.all()
     serializer_class = ReadtopicsSerializer
 
 
 # Управляет результатами тестов
 class TestresultsViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Testresults.objects.all()
     serializer_class = TestresultsSerializer
+    def create(self, request, *args, **kwargs):
+        user_id = request.data.get('user')
+        test_id = request.data.get('test')
+        total_score = request.data.get('total_score')
 
+        if not user_id or not test_id:
+            return Response({"detail": "Необходимо указать пользователя и тест."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Найти предыдущие попытки пользователя для данного теста
+        existing_result = Testresults.objects.filter(user=user_id, test=test_id).first()
+
+        if existing_result:
+            # Обновление лучшего результата и увеличение количества попыток
+            existing_result.try_numb += 1
+            if total_score > existing_result.total_score:
+                existing_result.total_score = total_score
+            existing_result.save()
+            serializer = self.get_serializer(existing_result)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # Если результата ещё нет, создать новый
+        data = {
+            'user': user_id,
+            'test': test_id,
+            'total_score': total_score,
+            'try_numb': 1,
+            'test_date': request.data.get('test_date')
+        }
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def get_queryset(self):
+        user = self.request.user  # Текущий авторизованный пользователь
+        return Testresults.objects.filter(user=user)
+
+# Управляет тестами
+class TestsViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Tests.objects.all()
+    serializer_class = TestsSerializer
 
 
 # Управляет темами курса
+
+
 class TopicsViewSet(viewsets.ModelViewSet):
     queryset = Topics.objects.all()
+    permission_classes = [DjangoModelPermissions]
     serializer_class = TopicsSerializer
 
     def get_queryset(self):
@@ -89,24 +163,44 @@ class TopicsViewSet(viewsets.ModelViewSet):
 
 # Представление для связи пользователей с курсами
 class UserescoursesrelViewSet(viewsets.ModelViewSet):
+    permission_classes = [DjangoModelPermissions]
     queryset = Userescoursesrel.objects.all()
     serializer_class = UserescoursesrelSerializer
 
 
 # Управление пользователями через API
 class UsersViewSet(viewsets.ModelViewSet):
+    permission_classes = [DjangoModelPermissions]
     queryset = Users.objects.all()
     serializer_class = UsersSerializer
+
+
+class UserRegistration(APIView):
+
+    permission_classes = [AllowAny]
+    queryset = Users.objects.all()
+    serializer_class = UsersSerializer
+
+    def post(self, request):
+        user = Users.objects.create_user(
+            request.data['username'],
+            request.data['email'],
+            request.data['password'])
+
+        user.first_name = request.data['first_name']
+        user.last_name = request.data['last_name']
+        user.save()
+        st_group = Group.objects.get(name='Student')
+        user.groups.add(st_group)
+        return Response(UsersSerializer(user).data)
+
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        serializer = UsersSerializer(user)
-        return Response(serializer.data)
-    
+
 class TestsViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Tests.objects.all()
     serializer_class = TestsSerializer
 
@@ -119,6 +213,7 @@ class TestsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class QuestionsViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Questions.objects.all()
     serializer_class = QuestionsSerializer
 
@@ -131,6 +226,7 @@ class QuestionsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class AnswersViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Answers.objects.all()
     serializer_class = AnswersSerializer
 
@@ -140,30 +236,3 @@ class AnswersViewSet(viewsets.ReadOnlyModelViewSet):
         if question_id is not None:
             queryset = queryset.filter(question_id=question_id)
         return queryset
-    
-# Управляет результатами тестов  
-class TestResultView(APIView):
-    queryset = Testresults.objects.all()
-    serializer_class = TestresultsSerializer
-    def post(self, request):
-        user_id = request.data.get('user')
-        test_id = request.data.get('test')
-        total_score = request.data.get('total_score')
-
-        user = Users.objects.get(id=user_id)
-        test = Tests.objects.get(id=test_id)
-
-        test_result, created = Testresults.objects.get_or_create(user=user, test=test)
-
-        if created:
-            test_result.total_score = total_score
-            test_result.try_numb = 1
-        else:
-            if total_score > test_result.total_score:
-                test_result.total_score = total_score
-            test_result.try_numb += 1
-
-        test_result.test_date = timezone.now()
-        test_result.save()
-
-        return Response({'message': 'Результаты сохранены'}, status=status.HTTP_200_OK)

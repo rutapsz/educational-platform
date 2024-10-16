@@ -12,19 +12,19 @@ import LoginForm from './components/LoginForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import { convertToRaw, ContentState } from 'draft-js';
 import './App.css';
+import axios from "axios";
 
 
 const App = () => {
-  const [token, setToken] = useState(null);
-
-
   const [showRegister, setShowRegister] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
 
   const openModal = (formType) => {
     setShowRegister(formType === 'register');
     setShowModal(true);
   };
+
 
   const closeModal = () => {
     setShowModal(false);
