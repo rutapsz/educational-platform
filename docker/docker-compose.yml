@@ -17,7 +17,7 @@ services:
     environment:
       DATABASE_URL: postgres://myuser:password@postgres:5432/mydb
     volumes:
-      - ./backend:/courseapp
+      - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
@@ -32,3 +32,4 @@ services:
 
 volumes:
   postgres_data:
+
