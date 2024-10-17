@@ -1,8 +1,8 @@
 # Use official Node.js image as base
-FROM node:17.9.0
+FROM node:18-alpine
 
 # Set working directory
-WORKDIR /root/frontend
+WORKDIR /app
 
 # Install 'serve' to serve the build folder
 RUN npm install -g serve
@@ -21,3 +21,4 @@ EXPOSE 3000
 
 # Serve the build folder
 CMD ["serve", "-s", "build"]
+
