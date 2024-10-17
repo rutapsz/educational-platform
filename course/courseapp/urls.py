@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import UserProfileView, UserLogin, UserLogout, UserRegistration
 from .views import (
     AnswersViewSet, CoursesViewSet, QuestionsViewSet, ReadtopicsViewSet, ViewCourses,
-    TestresultsViewSet, TestsViewSet, TopicsViewSet, UserescoursesrelViewSet, UsersViewSet
+    TestresultsViewSet, TestsViewSet, TopicsViewSet, UserescoursesrelViewSet, UsersViewSet, AdminReportsViewSet, CertificateViewSet
 )
 
 router = DefaultRouter()

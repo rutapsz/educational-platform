@@ -6,12 +6,12 @@ body, html {
 }
 
 header {
-  position: fixed;
+  /* position: fixed; */
   top: 0vh;
   left: 5vw;
   right: 5vw;
   height: 10vh;
-  background-color: #1E90FF;
+  background-color: #003DAE;
   color: #fff;
   display: flex;
   align-items: center;
@@ -19,7 +19,7 @@ header {
   padding: 0 20px;
   box-sizing: border-box;
   z-index: 1000;
-  border-radius: 100px;
+  border-radius: 10px;
   margin: 1vh 1vw; 
 }
 
@@ -50,6 +50,23 @@ nav {
   margin: 0;
 }
 
+.authorization li {
+  margin-left: 20px; /* Добавляем отступы между элементами */
+}
+
+.authorization li a,
+.authorization li span {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+.authorization li a:hover,
+.authorization li span:hover {
+  text-decoration: underline;
+}
+
 nav ul {
   list-style: none;
   display: flex;
@@ -58,7 +75,7 @@ nav ul {
 }
 
 nav ul li {
-  margin-left: 40px;
+  margin-left: 0vh;
 }
 
 nav ul li a {
@@ -81,4 +98,14 @@ nav ul li a {
   nav ul li {
     margin: 10px 0;
   }
+}
+.auth-link {
+  cursor: pointer;
+  /* Добавьте другие стили, если необходимо */
+  color: #000; /* Пример стиля */
+  text-decoration: none; /* Убирает подчеркивание у ссылок */
+}
+
+.auth-link:hover {
+  text-decoration: underline; /* Пример стиля при наведении */
 }

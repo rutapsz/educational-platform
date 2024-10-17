@@ -1,3 +1,13 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-image: url('./background.jpg'); /* Укажите путь к вашему изображению */
+  background-size: cover; /* Масштабирует изображение, чтобы оно покрывало весь экран */
+  background-repeat: no-repeat; /* Предотвращает повторение изображения */
+  background-attachment: fixed; /* Фиксирует изображение при прокрутке */
+}
+
 .App {
   text-align: center;
 }
@@ -41,7 +51,10 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f0f0f0;
+  background-image: url('./background.jpg'); /* Укажите путь к вашему изображению */
+  background-size: cover; /* Масштабирует изображение, чтобы оно покрывало весь экран */
+  background-repeat: no-repeat; /* Предотвращает повторение изображения */
+  background-attachment: fixed; /* Фиксирует изображение при прокрутке */
 }
 
 .form-container {

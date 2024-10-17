@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import './AddCourse.css';
 import client from "../components/requests";
 

@@ -28,7 +28,7 @@
 }
 
 .topics-navigation .active {
-  background-color: #007bff;
+  background-color: #003DAE;
   color: white;
 }
 
@@ -85,7 +85,7 @@
 }
 
 .test-input:focus {
-  border-color: #007bff;
+  border-color: #003DAE;
   outline: none;
   box-shadow: 0px 4px 12px rgba(0, 123, 255, 0.3);
 }
@@ -97,7 +97,7 @@
 
 .test-button {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #003DAE;
   color: white;
   border: none;
   border-radius: 5px;
@@ -137,8 +137,8 @@
 }
 
 .enhanced-input:focus {
-  border-color: #4a90e2;
-  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+  border-color: #003DAE;
+  box-shadow: 0 0 5px #003DAE;
 }
 
 .test-button {
@@ -186,7 +186,7 @@
 }
 
 .close-button {
-  background-color: #1976d2;
+  background-color: #003DAE;
   color: white;
   border: none;
   border-radius: 8px;
@@ -196,7 +196,7 @@
 }
 
 .close-button:hover {
-  background-color: #1565c0;
+  background-color: #003DAE;
 }
 .read {
   color: green;
