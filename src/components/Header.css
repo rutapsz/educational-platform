@@ -64,7 +64,7 @@ nav {
 
 .authorization li a:hover,
 .authorization li span:hover {
-  text-decoration: underline;
+  text-decoration: none; 
 }
 
 nav ul {
@@ -81,7 +81,22 @@ nav ul li {
 nav ul li a {
   color: #fff;
   text-decoration: none;
-  font-size: 1.2em;
+}
+
+.auth-button {
+  background-color: #908f87;
+  color: #003DAE;
+  border: none;
+  border-radius: 15px;
+  padding: 9px 16px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  border: 2px solid #fff;
+}
+
+.auth-button:hover {
+  background-color: #e0e0e0;
 }
 
 @media (max-width: 768px) {

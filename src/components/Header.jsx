@@ -44,19 +44,19 @@ const Header = ({ openModal }) => {
           {localStorage.getItem('username') ? (
             <>
               <li>
-                <Link to="/profile">Профиль</Link>
+                <Link to="/profile" className="auth-button">Профиль</Link>
               </li>
               <li>
-                <span onClick={handleLogout} style={{ cursor: 'pointer' }}>Выход</span>
+                <span onClick={handleLogout} className="auth-button">Выход</span>
               </li>
             </>
           ) : (
             <>
               <li>
-                <span onClick={() => openModal('register')} style={{ cursor: 'pointer' }}>Регистрация</span>
+                <span onClick={() => openModal('register')} className="auth-button">Регистрация</span>
               </li>
               <li>
-                <span onClick={() => openModal('login')} style={{ cursor: 'pointer' }}>Вход</span>
+                <span onClick={() => openModal('login')} className="auth-button">Вход</span>
               </li>
             </>
           )}
