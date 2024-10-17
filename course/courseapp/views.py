@@ -107,7 +107,10 @@ class ReadtopicsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Readtopics.objects.all()
     serializer_class = ReadtopicsSerializer
-
+    def get_queryset(self):
+        # Фильтруем записи по текущему пользователю
+        user = self.request.user
+        return Readtopics.objects.filter(user=user)
 
 # Управляет результатами тестов
 class TestresultsViewSet(viewsets.ModelViewSet):
@@ -149,6 +152,7 @@ class TestresultsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user  # Текущий авторизованный пользователь
         return Testresults.objects.filter(user=user)
+    
     
 
 # Управляет тестами

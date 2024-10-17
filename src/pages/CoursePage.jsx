@@ -94,6 +94,12 @@ const CoursePage = () => {
   
     fetchReadTopics();
   }, []);
+  const countQuestionsForTest = (testId, questions) => {
+    // Фильтруем вопросы, связанные с данным тестом
+    const relatedQuestions = questions.filter(question => question.test === testId);
+    // Возвращаем количество вопросов
+    return relatedQuestions.length;
+  };
   // Функция для проверки доступности модуля
   const isModuleAccessible = (module) => {
     const previousTest = tests.find(test => test.module === module - 1);
@@ -104,7 +110,7 @@ const CoursePage = () => {
   
     // Проверяем, что результат теста и количество вопросов существуют
     const correctScore = result.total_score || 0;
-    const totalQuestions = scores[previousTest.id]?.total || 0;
+    const totalQuestions = countQuestionsForTest(previousTest.id, questions);
   
     // // Если в тесте нет вопросов, считаем, что тест не пройден
     // if (totalQuestions === 0) return false;
@@ -274,25 +280,25 @@ const CoursePage = () => {
             <h3>Модуль {module}</h3>
             <ul>
             {groupedTopics[module].map((topic) => (
-    <li
-      key={topic.id}
-      onClick={() =>
-        isModuleAccessible(topic.module) && handleTopicSelect(topic)
-      }
-      className={`${
-        selectedTopic?.id === topic.id
-          ? 'active'
-          : isModuleAccessible(topic.module)
-          ? readTopics[topic.id]
-            ? 'read-topic'  // Если топик прочитан, добавляем класс для подсветки
-            : ''
-          : 'disabled'
-      }`}
-    >
-      {topic.name}{' '}
-      {!isModuleAccessible(topic.module)}
-    </li>
-  ))}
+              <li
+                key={topic.id}
+                onClick={() =>
+                  isModuleAccessible(topic.module) && handleTopicSelect(topic)
+                }
+                className={`${
+                  selectedTopic?.id === topic.id
+                    ? 'active'
+                    : isModuleAccessible(topic.module)
+                    ? readTopics[topic.id]
+                      ? 'read-topic'  // Если топик прочитан, добавляем класс для подсветки
+                      : ''
+                    : 'disabled'
+                }`}
+              >
+                {topic.name}{' '}
+                {!isModuleAccessible(topic.module)}
+              </li>
+            ))}
               {tests
                 .filter((test) => test.module === parseInt(module))
                 .map((test) => (
