@@ -24,6 +24,7 @@ urlpatterns = [
     path('login_user/', UserLogin.as_view(), name='login'),
     path('logout_user/', UserLogout.as_view(), name='logout'),
     path('registration/', UserRegistration.as_view(), name='registration'),
-    path('base/courses/', ViewCourses.as_view(), name='courses')
+    path('base/courses/', ViewCourses.as_view(), name='courses'),
+    path('certificates/', CertificateViewSet.as_view({'post': 'post'}), name='get_certificate') 
 ]
 
