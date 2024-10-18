@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-uzj(%6a3mdg*g9tb#dr=c&%r=rq6cp!^5@fg$rdd*6(kf1_378
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["12cc7027bdfb.vps.myjino.ru"]
 
 
 # Application definition
@@ -130,16 +130,19 @@ REST_FRAMEWORK = {
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://12cc7027bdfb.vps.myjino.ru:49344",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://12cc7027bdfb.vps.myjino.ru:49344",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://12cc7027bdfb.vps.myjino.ru:49344",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
