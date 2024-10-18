@@ -7,7 +7,7 @@ import logo from './logo.png';
 const Header = ({ openModal }) => {
 
   const handleLogout =  () => {
-    axios.post("http://localhost:8000/api/logout_user/",
+    axios.post(process.env.REACT_APP_LINK + ':' + process.env.REACT_APP_BACK + "/api/logout_user/",
         {},
         {
           withCredentials: true,
@@ -15,11 +15,11 @@ const Header = ({ openModal }) => {
         }).then(res => {
         localStorage.setItem('username', '');
         localStorage.setItem('staff', '');
-        window.location.replace('http://localhost:3000/');
+        window.location.replace(process.env.REACT_APP_LINK + ':' + process.env.REACT_APP_FRONT);
         }).catch(error => {
             localStorage.setItem('username', '');
             localStorage.setItem('staff', '');
-            window.location.replace('http://localhost:3000/');
+            window.location.replace(process.env.REACT_APP_LINK + ':' + process.env.REACT_APP_FRONT);
         });
   };
   console.log(localStorage.getItem('username'));

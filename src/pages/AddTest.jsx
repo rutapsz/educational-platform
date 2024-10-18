@@ -26,7 +26,7 @@ const AddTest = () => {
   useEffect(() => {
     const fetchTests = async () => {
       try {
-        const response = await client.get('http://localhost:8000/api/tests/',
+        const response = await client.get('/api/tests/',
           {withCredentials: true});
         setTests(response.data);
       } catch (error) {
@@ -40,7 +40,7 @@ const AddTest = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await client.get('http://localhost:8000/api/courses/',
+        const response = await client.get('/api/courses/',
           {withCredentials: true});
         setCourses(response.data);
       } catch (error) {
@@ -53,7 +53,7 @@ const AddTest = () => {
   // Получение вопросов по тесту
   const fetchQuestions = async (testId) => {
     try {
-      const response = await client.get(`http://localhost:8000/api/questions/?test=${testId}`,
+      const response = await client.get(`/api/questions/?test=${testId}`,
           {withCredentials: true});
       setQuestions(response.data);
     } catch (error) {
@@ -64,7 +64,7 @@ const AddTest = () => {
   // Получение ответов по вопросу
   const fetchAnswers = async (questionId) => {
     try {
-      const response = await client.get(`http://localhost:8000/api/answers/?question=${questionId}`,
+      const response = await client.get(`/api/answers/?question=${questionId}`,
           {withCredentials: true});
       setAnswers(response.data);
     } catch (error) {
@@ -97,16 +97,16 @@ const AddTest = () => {
 
     try {
       if (isEditingTest) {
-        await client.put(`http://localhost:8000/api/tests/${selectedTestId}/`, updatedTest,
+        await client.put(`/api/tests/${selectedTestId}/`, updatedTest,
           {withCredentials: true});
         setSuccessMessage('Тест успешно обновлен!');
       } else {
-        const response = await client.post('http://localhost:8000/api/tests/', updatedTest,
+        const response = await client.post('/api/tests/', updatedTest,
           {withCredentials: true});
         setSelectedTestId(response.data.id);
         setSuccessMessage('Тест успешно создан!');
       }
-      const updatedTests = await client.get('http://localhost:8000/api/tests/',
+      const updatedTests = await client.get('/api/tests/',
           {withCredentials: true});
       setTests(updatedTests.data);
       setIsEditingTest(false);
@@ -139,10 +139,10 @@ const AddTest = () => {
 
     try {
       if (isEditingQuestion) {
-        await client.put(`http://localhost:8000/api/questions/${selectedQuestionId}/`, updatedQuestion, {withCredentials: true});
+        await client.put(`/api/questions/${selectedQuestionId}/`, updatedQuestion, {withCredentials: true});
         setSuccessMessage('Вопрос успешно обновлен!');
       } else {
-        await client.post('http://localhost:8000/api/questions/', updatedQuestion,
+        await client.post('/api/questions/', updatedQuestion,
             {withCredentials: true});
         setSuccessMessage('Вопрос успешно создан!');
       }
@@ -182,10 +182,10 @@ const AddTest = () => {
 
     try {
       if (isEditingAnswer) {
-        await client.put(`http://localhost:8000/api/answers/${selectedAnswerId}/`, updatedAnswer, {withCredentials: true});
+        await client.put(`/api/answers/${selectedAnswerId}/`, updatedAnswer, {withCredentials: true});
         setSuccessMessage('Ответ успешно обновлен!');
       } else {
-        await client.post('http://localhost:8000/api/answers/', updatedAnswer,
+        await client.post('/api/answers/', updatedAnswer,
             {withCredentials: true});
         setSuccessMessage('Ответ успешно создан!');
       }
@@ -205,10 +205,10 @@ const AddTest = () => {
   // Удаление теста
   const handleDeleteTest = async (testId) => {
     try {
-      await client.delete(`http://localhost:8000/api/tests/${testId}/`,
+      await client.delete(`/api/tests/${testId}/`,
           {withCredentials: true});
       setSuccessMessage('Тест успешно удален!');
-      const updatedTests = await client.get('http://localhost:8000/api/tests/',
+      const updatedTests = await client.get('/api/tests/',
           {withCredentials: true});
       setTests(updatedTests.data);
       setSelectedTestId(null);
@@ -221,7 +221,7 @@ const AddTest = () => {
   // Удаление вопроса
   const handleDeleteQuestion = async (questionId) => {
     try {
-      await client.delete(`http://localhost:8000/api/questions/${questionId}/`,
+      await client.delete(`/api/questions/${questionId}/`,
             {withCredentials: true});
       setSuccessMessage('Вопрос успешно удален!');
       fetchQuestions(selectedTestId);
@@ -233,7 +233,7 @@ const AddTest = () => {
   // Удаление ответа
   const handleDeleteAnswer = async (answerId) => {
     try {
-      await client.delete(`http://localhost:8000/api/answers/${answerId}/`,
+      await client.delete(`/api/answers/${answerId}/`,
             {withCredentials: true});
       setSuccessMessage('Ответ успешно удален!');
       fetchAnswers(selectedQuestionId);

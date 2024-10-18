@@ -218,7 +218,7 @@ const CoursePage = () => {
     };
   
     try {
-      const response = await client.post('http://localhost:8000/api/testresults/', attemptData, { withCredentials: true });
+      const response = await client.post('/api/testresults/', attemptData, { withCredentials: true });
       setScores(response.data);
       console.log("Результаты успешно отправлены:", response.data);
   
