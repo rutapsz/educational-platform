@@ -32,9 +32,7 @@ const Home = ({openModal}) => {
                 (<Link to={`/course/${course.id}`} className="view-course-button">
                   Зайти на курс
                 </Link>) : (
-                    <Link className="view-course-button">
-                      Зайти на курс
-                    </Link>
+                    <span onClick={() => openModal('register')} className="view-course-button">Зайти на курс</span>
                 )
             }
           </div>
