@@ -1,8 +1,8 @@
 import time
+import io
 
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password, check_password
 from .models import Answers, Courses, Questions, Readtopics, Testresults, Tests, Topics, Userescoursesrel
@@ -21,7 +21,6 @@ from .models import User as Users
 from rest_framework.authentication import SessionAuthentication
 
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, DjangoModelPermissions
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.contrib.auth.models import Group, Permission
@@ -31,12 +30,13 @@ from secrets import token_bytes
 from django.utils.decorators import method_decorator
 from rest_framework.response import Response
 from rest_framework import viewsets, status
-from rest_framework.response import Response
 from django.db.models import Max
 from rest_framework.decorators import action
 
 from django.db.models import Avg, Count
 from reportlab.pdfgen import canvas
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import EmailMessage
 
 class UserLogin(APIView):
     permission_classes = (AllowAny,)
@@ -266,32 +266,47 @@ class AdminReportsViewSet(viewsets.ViewSet):
         report = Testresults.objects.filter(total_score__gte=80).values('user__login', 'course__name').annotate(
             num_completed=Count('id'))
         return Response(report)
+        
 class CertificateViewSet(viewsets.ViewSet):
-    # Генерация PDF-сертификата
-    def generate_certificate(self, user, course):
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="certificate_{user.username}.pdf"'
-        p = canvas.Canvas(response)
-        p.drawString(100, 750, "Certificate of Completion")
-        p.drawString(100, 700, f"Congratulations {user.username}!")
-        p.drawString(100, 650, f"You have successfully completed {course.name}.")
-        p.showPage()
-        p.save()
-        return response
+
+    @action(detail=False, methods=['post'])
     def post(self, request, *args, **kwargs):
-        user = request.user
-        course = get_object_or_404(Courses, id=kwargs.get('course_id'))
-        if Testresults.objects.filter(user=user, course=course, total_score__gte=80).exists():
-            pdf = self.generate_certificate(user, course)
-            self.send_certificate_via_email(user, course, pdf)
-            return Response({'message': 'Certificate sent successfully.'})
-        return Response({'error': 'Course not completed with required score.'}, status=400)
-    def send_certificate_via_email(self, user, course, pdf_content):
-        email = EmailMessage(
-            'Your Course Certificate',
-            f'Congratulations {user.username}, you have successfully completed {course.name}. Your certificate is attached.',
-            'admin@platform.com',
-            [user.email],
-        )
-        email.attach(f'certificate_{user.username}.pdf', pdf_content, 'application/pdf')
-        email.send()
+        user_id = request.data.get('user')
+        
+        try:
+            user = Users.objects.get(pk=user_id)
+            course_id = request.data.get('course_id')
+            course = Courses.objects.get(pk=course_id)
+            
+            results = Testresults.objects.filter(user=user, test__course=course)
+            total_tests = results.count()
+            passed_tests = results.filter(total_score__gte=80).count()
+
+            if total_tests == 0 or (passed_tests / total_tests) < 0.8:
+                return Response({"error": "Процент прохождения курса менее 80%"}, status=status.HTTP_400_BAD_REQUEST)
+                
+            buffer = io.BytesIO()
+            p = canvas.Canvas(buffer)
+            p.drawString(100, 750, f"Сертификат о прохождении")
+            p.drawString(100, 725, f"Слушатель: {user.first_name} {user.last_name}")
+            p.drawString(100, 700, f"Курс: {course.name}")
+            p.drawString(100, 675, f"Поздравляем с прохождением курса на {int((passed_tests / total_tests) * 100)}%!")
+            p.showPage()
+            p.save()
+            buffer.seek(0)
+            
+            # Отправка на email
+            email = EmailMessage(
+                f'Ваш сертификат для курса {course.name}',
+                'Поздравляем, вы успешно прошли курс. Ваш сертификат во вложении.',
+                'noreply@yourplatform.com',
+                [user.email],
+            )
+            email.attach(f'certificate_{course.name}.pdf', buffer.getvalue(), 'application/pdf')
+            email.send()
+
+            # Отправка PDF сертификата в ответе
+            return FileResponse(buffer, as_attachment=True, filename=f'certificate_{course.name}.pdf')
+
+        except ObjectDoesNotExist:
+            return Response({"error": "Пользователь или курс не найден"}, status=status.HTTP_400_BAD_REQUEST)
