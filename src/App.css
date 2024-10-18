@@ -6,6 +6,8 @@ body, html {
   background-size: cover; /* Масштабирует изображение, чтобы оно покрывало весь экран */
   background-repeat: no-repeat; /* Предотвращает повторение изображения */
   background-attachment: fixed; /* Фиксирует изображение при прокрутке */
+  font-family: "Roboto Condensed", sans-serif;
+
 }
 
 .App {

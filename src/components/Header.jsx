@@ -36,9 +36,11 @@ const Header = ({ openModal }) => {
             <Link to="/">Авторика</Link>
           </li> */}
           {localStorage.getItem('staff') === 'true' ? (
-          <li>
-            <Link to="/add-course">Изменить курсы</Link>
-          </li> ) : (<li></li>)}
+          <li className="authorization">
+            <Link className="auth-button" to="/add-course">Изменить курсы</Link>
+
+            <Link className="auth-button" to="/add-test">Изменить тесты</Link>
+        </li> ) : (<li></li>)}
         </ul>
         <ul className="authorization">
           {localStorage.getItem('username') ? (

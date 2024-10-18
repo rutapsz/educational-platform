@@ -167,8 +167,6 @@ class TestsViewSet(viewsets.ModelViewSet):
 
 
 # Управляет темами курса
-
-
 class TopicsViewSet(viewsets.ModelViewSet):
     queryset = Topics.objects.all()
     permission_classes = [DjangoModelPermissions]
@@ -220,7 +218,7 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
 
-class TestsViewSet(viewsets.ReadOnlyModelViewSet):
+class TestsViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     queryset = Tests.objects.all()
     serializer_class = TestsSerializer
@@ -233,7 +231,7 @@ class TestsViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-class QuestionsViewSet(viewsets.ReadOnlyModelViewSet):
+class QuestionsViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     queryset = Questions.objects.all()
     serializer_class = QuestionsSerializer
@@ -246,7 +244,7 @@ class QuestionsViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-class AnswersViewSet(viewsets.ReadOnlyModelViewSet):
+class AnswersViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     queryset = Answers.objects.all()
     serializer_class = AnswersSerializer

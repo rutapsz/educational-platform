@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import RegisterForm from './components/RegisterForm';
 import AddCourse from './pages/AddCourse';
+import AddTest from './pages/AddTest';
 import CoursePage from './pages/CoursePage';
 import Profile from './pages/Profile';
 import AuthForm from './components/AuthForm';
@@ -40,6 +41,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/add-course" element={<AddCourse />} />
+        <Route path="/add-test" element={<AddTest />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/course/:id" element={<CoursePage />} />
