@@ -270,7 +270,22 @@ const CoursePage = () => {
     setShowResultModal(false);
     window.location.reload(); // Перезагрузка страницы
   };
-
+  
+    // Функция для обработки ссылок
+    const handleLinks = (html) => {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+  
+      // Найти все ссылки и установить target="_blank"
+      const links = tempDiv.getElementsByTagName('a');
+      for (let i = 0; i < links.length; i++) {
+        links[i].setAttribute('target', '_blank');
+        links[i].setAttribute('rel', 'noopener noreferrer'); // Для безопасности
+      }
+  
+      return tempDiv.innerHTML;
+    };
+  
   return (
     <div className="course-page-container">
       <div className="topics-navigation">
@@ -325,7 +340,7 @@ const CoursePage = () => {
       </div>
       <div className="topic-content">
         {selectedTopic && (
-          <div dangerouslySetInnerHTML={{ __html: selectedTopic.data_ref }} />
+          <div dangerouslySetInnerHTML={{ __html: handleLinks(selectedTopic.data_ref) }} />
         )}
         {selectedTest && (
           <div className="test-section">

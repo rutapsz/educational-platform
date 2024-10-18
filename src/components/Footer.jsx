@@ -5,11 +5,9 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-content">
-        <p>&copy; {new Date().getFullYear()} название</p>
+        <p>&copy; {new Date().getFullYear()} Авторика</p>
         <div className="footer-links">
-          <a href="#">Политика конфиденциальности</a>
-          <a href="#">Условия использования</a>
-          <a href="#">Контакты</a>
+        <a href="/Пользовательское соглашение.pdf" target="_blank" rel="noopener noreferrer">Пользовательское соглашение</a>
         </div>
       </div>
     </footer>
