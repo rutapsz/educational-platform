@@ -113,10 +113,11 @@ const TestResults = () => {
     return acc;
   }, {});
 
-  const handleGetCertificate = async () => {
+const handleGetCertificate = async () => {
     const userId = localStorage.getItem('username');
+    const courseId = 1; // Идентификатор курса, так ммм а как его получать
     try {
-      const response = await client.post('/api/certificates/', { user: userId }, { responseType: 'blob' });
+      const response = await client.post('/api/certificates/', { user: userId, course_id: courseId }, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -128,6 +129,7 @@ const TestResults = () => {
       console.error('Ошибка при получении сертификата:', error);
     }
   };
+
 
   return (
     <div className="container">
