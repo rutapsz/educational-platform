@@ -268,7 +268,7 @@ class AdminReportsViewSet(viewsets.ViewSet):
         return Response(report)
         
 class CertificateViewSet(viewsets.ViewSet):
-
+    permission_classes = [IsAuthenticated]
     @action(detail=False, methods=['post'])
     def post(self, request, *args, **kwargs):
         user_id = request.data.get('user')
