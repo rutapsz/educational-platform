@@ -21,6 +21,7 @@ html, body {
   padding: 5px 0;
   margin-top: auto;
   min-height: 10vh;
+  overflow: auto;
 }
 
 .footer-content {
