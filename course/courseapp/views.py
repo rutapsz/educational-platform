@@ -296,14 +296,14 @@ class CertificateViewSet(viewsets.ViewSet):
             buffer.seek(0)
             
             # Отправка на email
-            email = EmailMessage(
-                f'Ваш сертификат для курса {course.name}',
-                'Поздравляем, вы успешно прошли курс. Ваш сертификат во вложении.',
-                'noreply@yourplatform.com',
-                [user.email],
-            )
-            email.attach(f'certificate_{course.name}.pdf', buffer.getvalue(), 'application/pdf')
-            email.send()
+            #email = EmailMessage(
+                #f'Ваш сертификат для курса {course.name}',
+                #'Поздравляем, вы успешно прошли курс. Ваш сертификат во вложении.',
+                #'noreply@yourplatform.com',
+                #[user.email],
+            #)
+            #email.attach(f'certificate_{course.name}.pdf', buffer.getvalue(), 'application/pdf')
+            #email.send()
 
             # Отправка PDF сертификата в ответе
             return FileResponse(buffer, as_attachment=True, filename=f'certificate_{course.name}.pdf')
