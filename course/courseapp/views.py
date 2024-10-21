@@ -293,7 +293,8 @@ class CertificateViewSet(viewsets.ViewSet):
     
     width_in_points = width * 72 / dpi[0] - 4.5
     height_in_points = height * 72 / dpi[1]
-
+    
+    buffer = BytesIO()
     file_path = "certificate.pdf"
     canvas_obj = canvas.Canvas(file_path, pagesize=(width_in_points, height_in_points))
 
