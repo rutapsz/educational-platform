@@ -395,7 +395,7 @@ const CoursePage = () => {
                       ) : correctAnswers.length === 1 ? (
                         questionAnswers.map((answer) => (
                           <div key={answer.id} className="test-answer">
-                            <input
+                            <label><input
                               type="radio"
                               className="test-radio"
                               name={`question-${question.id}`}
@@ -407,13 +407,13 @@ const CoursePage = () => {
                                 handleRadioChange(question.id, answer.answer)
                               }
                             />
-                            <label>{answer.answer}</label>
+                            {answer.answer}</label>
                           </div>
                         ))
                       ) : (
                         questionAnswers.map((answer) => (
                           <div key={answer.id} className="test-answer">
-                            <input
+                            <label><input
                               type="checkbox"
                               className="test-checkbox"
                               value={answer.answer}
@@ -424,7 +424,7 @@ const CoursePage = () => {
                                 handleCheckboxChange(question.id, answer.answer)
                               }
                             />
-                            <label>{answer.answer}</label>
+                            {answer.answer}</label>
                           </div>
                         ))
                       )}
