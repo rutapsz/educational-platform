@@ -7,6 +7,7 @@
 .topics-navigation {
   width: 25%;
   padding-right: 20px;
+  font-weight: bold !important;
 }
 
 .topics-navigation ul {
@@ -53,7 +54,7 @@
 
 .test-title {
   font-size: 24px;
-  font-weight: bold;
+  font-weight: bold !important;
   margin-bottom: 20px;
   color: #333;
 }
@@ -173,7 +174,7 @@
 }
 
 .modal-fail {
-  background-color: rgba(244, 67, 54, 0.8);
+  background-color: rgba(221, 213, 212, 0.8);
 }
 
 
@@ -198,21 +199,54 @@
 .close-button:hover {
   background-color: #003DAE;
 }
-.read {
+/* .read {
   color: green;
+  font-weight: bold;
+  background-color: green;
+} */
+
+.read-topic {
+  background-color: rgba(24, 206, 24, 0.8)!important;
+  color: inherit;
   font-weight: bold;
 }
 
-.read span {
-  margin-left: 5px;
-  color: green;
-}
-.read-topic {
-  color: green; /* Или любой другой стиль для прочитанных топиков */
-  font-weight: bold;
+.read-topic:hover {
+  background-color: darkgreen !important;
 }
 
 .read-topic::before {
-  content: '✔'; /* Галочка перед названием топика */
-  margin-right: 8px;
+  content: '';
+  margin-right: 0;
+}
+
+.completed-test {
+  background-color: rgba(24, 206, 24, 0.8)!important ;
+  color: inherit;
+  font-weight: bold;
+}
+.completed-test:hover {
+  background-color: darkgreen !important;
+}
+
+.read-button {
+  display: flex;
+  align-items: center; 
+  justify-content: center; 
+  font-size: 1.2em;
+  background-color: transparent; 
+  border: none; 
+  cursor: pointer; 
+}
+
+.read-button input[type="checkbox"] {
+  margin-right: 10px;
+  width: 20px; 
+  height: 20px; 
+  accent-color: green;
+}
+
+.read-button span {
+  /* color: green; */
+  font-weight: bold; 
 }

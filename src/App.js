@@ -39,7 +39,7 @@ const App = () => {
     <Router>
       <Header openModal={openModal} />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home openModal={openModal} />} />
         <Route path="/add-course" element={<AddCourse />} />
         <Route path="/add-test" element={<AddTest />} />
         <Route path="/register" element={<RegisterForm />} />

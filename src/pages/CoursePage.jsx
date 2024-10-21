@@ -123,36 +123,42 @@ const CoursePage = () => {
   };
   
 
-  const markTopicAsRead = async (topicId) => {
+  const markTopicAsRead = async (topicId, isRead) => {
     const userId = localStorage.getItem('username');
     if (!userId) return;
-  
+
     try {
-      await client.post(`/api/readtopics/`, { user: userId, topic: topicId });
-      setReadTopics((prev) => [...prev, topicId]); // Обновляем локальное состояние
+        if (isRead) {
+            await client.post(`/api/readtopics/`, { user: userId, topic: topicId });
+            setReadTopics((prev) => ({
+                ...prev,
+                [topicId]: true,
+            }));
+        } else {
+            // Сначала находим id записи Readtopics
+            const response = await client.get(`/api/readtopics/?user=${userId}&topic=${topicId}`);
+            if (response.data.length > 0) {
+                const readTopicId = response.data[0].id; // Получаем id записи
+
+                await client.delete(`/api/readtopics/${readTopicId}/`); // Удаляем статус прочитанного
+                setReadTopics((prev) => {
+                    const updatedTopics = { ...prev };
+                    delete updatedTopics[topicId]; // Удаляем топик из объекта
+                    return updatedTopics;
+                });
+            } else {
+                console.error('Запись Readtopics не найдена для удаления');
+            }
+        }
     } catch (error) {
-      console.error('Ошибка при отметке топика как прочитанного:', error);
+        console.error('Ошибка при отметке топика как прочитанного или непрочитанного:', error);
     }
-  };
+};
 
   const handleTopicSelect = async (topic) => {
     setSelectedTest(null);
     setSelectedTopic(topic);
   
-    // Обновляем статус прочитанного топика
-    if (!readTopics[topic.id]) {
-      try {
-        const userId = localStorage.getItem('username');
-        await client.post(`/api/readtopics/`, { user: userId, topic: topic.id });
-        
-        setReadTopics((prev) => ({
-          ...prev,
-          [topic.id]: true,
-        }));
-      } catch (error) {
-        console.error('Ошибка при обновлении статуса прочитанного топика:', error);
-      }
-    }
   };
   
   const handleTestSelect = (test) => {
@@ -305,7 +311,7 @@ const CoursePage = () => {
                     ? 'active'
                     : isModuleAccessible(topic.module)
                     ? readTopics[topic.id]
-                      ? 'read-topic'  // Если топик прочитан, добавляем класс для подсветки
+                      ? 'read-topic'
                       : ''
                     : 'disabled'
                 }`}
@@ -315,33 +321,47 @@ const CoursePage = () => {
               </li>
             ))}
               {tests
-                .filter((test) => test.module === parseInt(module))
-                .map((test) => (
-                  <li
-                    key={test.id}
-                    onClick={() =>
-                      isModuleAccessible(test.module) && handleTestSelect(test)
-                    }
-                    className={
-                      selectedTest?.id === test.id
-                        ? 'active'
-                        : isModuleAccessible(test.module)
-                        ? ''
-                        : 'disabled'
-                    }
-                  >
-                    {test.name}{' '}
-                    {!isModuleAccessible(test.module)}
-                  </li>
-                ))}
+              .filter((test) => test.module === parseInt(module))
+              .map((test, index) => (
+                <li
+                  key={test.id}
+                  onClick={() =>
+                    isModuleAccessible(test.module) && handleTestSelect(test)
+                  }
+                  className={`${
+                    selectedTest?.id === test.id
+                      ? 'active'
+                      : isModuleAccessible(test.module + 1) 
+                      ? 'completed-test' 
+                      : isModuleAccessible(test.module)
+                      ? '' 
+                      : 'disabled' 
+                  }`}
+                >
+                  Тест {index + 1}: {test.name}{' '} 
+                  {!isModuleAccessible(test.module)}
+                </li>
+              ))}
             </ul>
           </div>
         ))}
       </div>
       <div className="topic-content">
-        {selectedTopic && (
+      {selectedTopic && (
+        <div>
           <div dangerouslySetInnerHTML={{ __html: handleLinks(selectedTopic.data_ref) }} />
-        )}
+          <label className="read-button">
+          <input 
+              type="checkbox" 
+              checked={!!readTopics[selectedTopic.id]} 
+              onChange={() => 
+                markTopicAsRead(selectedTopic.id, !readTopics[selectedTopic.id]) 
+              } 
+            />
+            <span>Прочитано</span>
+        </label>
+        </div>
+      )}
         {selectedTest && (
           <div className="test-section">
             <h3 className="test-title">{selectedTest.name}</h3>

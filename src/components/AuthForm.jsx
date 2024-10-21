@@ -7,7 +7,7 @@ function AuthForm({ showRegister, closeModal, switchForm }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button className="close-button" onClick={closeModal}>×</button>
+        <button className="close-button" onClick={closeModal}>&times;</button>
         {showRegister ? <RegisterForm switchForm={switchForm} /> : <LoginForm switchForm={switchForm} />}
       </div>
     </div>
