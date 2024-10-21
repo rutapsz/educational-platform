@@ -279,7 +279,11 @@ class AdminReportsViewSet(viewsets.ViewSet):
         return Response(report)
 
 
-def generate_certificate(user_first_name, user_last_name, course_name, score):
+    
+class CertificateViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+   
+    def generate_certificate(self, user_first_name, user_last_name, course_name, score):
     pdfmetrics.registerFont(TTFont('HelveticaBold', 'HelveticaBold.ttf'))
     pdfmetrics.registerFont(TTFont('HelveticaLight', 'HelveticaLight.ttf'))
     
@@ -316,9 +320,9 @@ def generate_certificate(user_first_name, user_last_name, course_name, score):
 
     canvas_obj.showPage()
     canvas_obj.save()
+    buffer.seek(0)
+    return buffer
     
-class CertificateViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
     @action(detail=False, methods=['post'])
     def post(self, request, *args, **kwargs):
         user_id = request.data.get('user')
@@ -337,7 +341,7 @@ class CertificateViewSet(viewsets.ViewSet):
                 
             score = int((passed_tests / total_tests) * 100)
             # Генерация PDF сертификата
-            buffer = generate_certificate(user.first_name, user.last_name, course.name, score)
+            buffer = self.generate_certificate(user.first_name, user.last_name, course.name, score)
             
             
             # Отправка на email
