@@ -284,45 +284,45 @@ class CertificateViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
    
     def generate_certificate(self, user_first_name, user_last_name, course_name, score):
-    pdfmetrics.registerFont(TTFont('HelveticaBold', 'HelveticaBold.ttf'))
-    pdfmetrics.registerFont(TTFont('HelveticaLight', 'HelveticaLight.ttf'))
-    
-    with Image.open('background.png') as img:
-        width, height = img.width, img.height
-        dpi = img.info.get('dpi', (72, 72))
-    
-    width_in_points = width * 72 / dpi[0] - 4.5
-    height_in_points = height * 72 / dpi[1]
-    
-    buffer = BytesIO()
-    file_path = "certificate.pdf"
-    canvas_obj = canvas.Canvas(file_path, pagesize=(width_in_points, height_in_points))
+        pdfmetrics.registerFont(TTFont('HelveticaBold', 'HelveticaBold.ttf'))
+        pdfmetrics.registerFont(TTFont('HelveticaLight', 'HelveticaLight.ttf'))
+        
+        with Image.open('background.png') as img:
+            width, height = img.width, img.height
+            dpi = img.info.get('dpi', (72, 72))
+        
+        width_in_points = width * 72 / dpi[0] - 4.5
+        height_in_points = height * 72 / dpi[1]
+        
+        buffer = BytesIO()
+        file_path = "certificate.pdf"
+        canvas_obj = canvas.Canvas(file_path, pagesize=(width_in_points, height_in_points))
 
-    background = ImageReader('background.png')
-    canvas_obj.drawImage(background, 0, 0, width=width_in_points, height=height_in_points)
+        background = ImageReader('background.png')
+        canvas_obj.drawImage(background, 0, 0, width=width_in_points, height=height_in_points)
 
-    with Image.open('logo.png') as img:
-        logo_width, logo_height = img.width, img.height
+        with Image.open('logo.png') as img:
+            logo_width, logo_height = img.width, img.height
 
-    logo_width_in_points = logo_width * 72 / dpi[0] / 2
-    logo_height_in_points = logo_height * 72 / dpi[1] / 2
+        logo_width_in_points = logo_width * 72 / dpi[0] / 2
+        logo_height_in_points = logo_height * 72 / dpi[1] / 2
 
-    logo = ImageReader('logo.png')
-    canvas_obj.drawImage(logo, width_in_points - logo_width_in_points - 20, height_in_points - logo_height_in_points - 20, width=logo_width_in_points, height=logo_height_in_points, mask='auto')
+        logo = ImageReader('logo.png')
+        canvas_obj.drawImage(logo, width_in_points - logo_width_in_points - 20, height_in_points - logo_height_in_points - 20, width=logo_width_in_points, height=logo_height_in_points, mask='auto')
 
-    canvas_obj.setFont("HelveticaBold", 70)
-    canvas_obj.setFillColor(white) 
-    canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 250, "СЕРТИФИКАТ")
-    canvas_obj.setFont("HelveticaLight", 30)
-    canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 300, f"подтверждает, что {user_first_name} {user_last_name}")
-    canvas_obj.setFillColor(black) 
-    canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 450, f"прошел (-ла) курс")
-    canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 500, f"“{course_name}”")
+        canvas_obj.setFont("HelveticaBold", 70)
+        canvas_obj.setFillColor(white) 
+        canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 250, "СЕРТИФИКАТ")
+        canvas_obj.setFont("HelveticaLight", 30)
+        canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 300, f"подтверждает, что {user_first_name} {user_last_name}")
+        canvas_obj.setFillColor(black) 
+        canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 450, f"прошел (-ла) курс")
+        canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 500, f"“{course_name}”")
 
-    canvas_obj.showPage()
-    canvas_obj.save()
-    buffer.seek(0)
-    return buffer
+        canvas_obj.showPage()
+        canvas_obj.save()
+        buffer.seek(0)
+        return buffer
     
     @action(detail=False, methods=['post'])
     def post(self, request, *args, **kwargs):
