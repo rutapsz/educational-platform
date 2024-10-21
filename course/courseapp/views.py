@@ -111,10 +111,18 @@ class ReadtopicsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Readtopics.objects.all()
     serializer_class = ReadtopicsSerializer
+
     def get_queryset(self):
-        # Фильтруем записи по текущему пользователю
         user = self.request.user
         return Readtopics.objects.filter(user=user)
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Http404:
+            return Response({'detail': 'No Readtopics matches the given query.'}, status=status.HTTP_404_NOT_FOUND)
 
 # Управляет результатами тестов
 class TestresultsViewSet(viewsets.ModelViewSet):
