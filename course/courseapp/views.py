@@ -36,7 +36,10 @@ from rest_framework.decorators import action
 from django.db.models import Avg, Count
 from reportlab.pdfgen import canvas
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import EmailMessage
+#from django.core.mail import EmailMessage
+from reportlab.lib.utils import ImageReader
+from PIL import Image
+from reportlab.lib.colors import white, black 
 
 class UserLogin(APIView):
     permission_classes = (AllowAny,)
@@ -274,7 +277,46 @@ class AdminReportsViewSet(viewsets.ViewSet):
         report = Testresults.objects.filter(total_score__gte=80).values('user__login', 'course__name').annotate(
             num_completed=Count('id'))
         return Response(report)
-        
+
+
+def generate_certificate(user_first_name, user_last_name, course_name, score):
+    pdfmetrics.registerFont(TTFont('HelveticaBold', 'HelveticaBold.ttf'))
+    pdfmetrics.registerFont(TTFont('HelveticaLight', 'HelveticaLight.ttf'))
+    
+    with Image.open('background.png') as img:
+        width, height = img.width, img.height
+        dpi = img.info.get('dpi', (72, 72))
+    
+    width_in_points = width * 72 / dpi[0] - 4.5
+    height_in_points = height * 72 / dpi[1]
+
+    file_path = "certificate.pdf"
+    canvas_obj = canvas.Canvas(file_path, pagesize=(width_in_points, height_in_points))
+
+    background = ImageReader('background.png')
+    canvas_obj.drawImage(background, 0, 0, width=width_in_points, height=height_in_points)
+
+    with Image.open('logo.png') as img:
+        logo_width, logo_height = img.width, img.height
+
+    logo_width_in_points = logo_width * 72 / dpi[0] / 2
+    logo_height_in_points = logo_height * 72 / dpi[1] / 2
+
+    logo = ImageReader('logo.png')
+    canvas_obj.drawImage(logo, width_in_points - logo_width_in_points - 20, height_in_points - logo_height_in_points - 20, width=logo_width_in_points, height=logo_height_in_points, mask='auto')
+
+    canvas_obj.setFont("HelveticaBold", 70)
+    canvas_obj.setFillColor(white) 
+    canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 250, "СЕРТИФИКАТ")
+    canvas_obj.setFont("HelveticaLight", 30)
+    canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 300, f"подтверждает, что {user_first_name} {user_last_name}")
+    canvas_obj.setFillColor(black) 
+    canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 450, f"прошел (-ла) курс")
+    canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 500, f"“{course_name}”")
+
+    canvas_obj.showPage()
+    canvas_obj.save()
+    
 class CertificateViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     @action(detail=False, methods=['post'])
@@ -293,15 +335,10 @@ class CertificateViewSet(viewsets.ViewSet):
             if total_tests == 0 or (passed_tests / total_tests) < 0.8:
                 return Response({"error": "Процент прохождения курса менее 80%"}, status=status.HTTP_400_BAD_REQUEST)
                 
-            buffer = io.BytesIO()
-            p = canvas.Canvas(buffer)
-            p.drawString(100, 750, f"Сертификат о прохождении")
-            p.drawString(100, 725, f"Слушатель: {user.first_name} {user.last_name}")
-            p.drawString(100, 700, f"Курс: {course.name}")
-            p.drawString(100, 675, f"Поздравляем с прохождением курса на {int((passed_tests / total_tests) * 100)}%!")
-            p.showPage()
-            p.save()
-            buffer.seek(0)
+            score = int((passed_tests / total_tests) * 100)
+            # Генерация PDF сертификата
+            buffer = generate_certificate(user.first_name, user.last_name, course.name, score)
+            
             
             # Отправка на email
             #email = EmailMessage(
