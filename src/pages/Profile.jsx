@@ -113,9 +113,8 @@ const TestResults = () => {
     return acc;
   }, {});
 
-const handleGetCertificate = async () => {
+const handleGetCertificate = async (courseId) => {
     const userId = localStorage.getItem('username');
-    const courseId = 1; // Идентификатор курса, ПОЧЕМУ ТУТ КОНСТАНТА 1, ну потому что у нас только один курс и я не совсем понимаю мы другой будем добавлять или нет
     try {
       const response = await client.post('/api/certificates/', { user: userId, course_id: courseId }, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -167,7 +166,7 @@ const handleGetCertificate = async () => {
         ))}
       </div>
       {allTestsPassed && (
-        <button onClick={handleGetCertificate} className="button">Получить сертификат</button>
+        <button onClick={handleGetCertificate(courseId)} className="button">Получить сертификат</button>
       )}
     </div>
   );
