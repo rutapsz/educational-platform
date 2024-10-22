@@ -1,5 +1,6 @@
 import time
 import io
+import matplotlib.pyplot as plt
 from reportlab.pdfbase import pdfmetrics
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
@@ -11,7 +12,7 @@ from .serializers import (
     TestresultsSerializer, TestsSerializer, TopicsSerializer, UserescoursesrelSerializer, UsersSerializer,
     UserLoginSerializer, CoursesItemsSerializer
 )
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
@@ -35,6 +36,7 @@ from rest_framework.decorators import action
 
 from django.db.models import Avg, Count
 from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
 from django.core.exceptions import ObjectDoesNotExist
 #from django.core.mail import EmailMessage
 from reportlab.lib.utils import ImageReader
@@ -230,7 +232,7 @@ class UserProfileView(APIView):
 
 
 class TestsViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Tests.objects.all()
     serializer_class = TestsSerializer
 
@@ -243,7 +245,7 @@ class TestsViewSet(viewsets.ModelViewSet):
 
 
 class QuestionsViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Questions.objects.all()
     serializer_class = QuestionsSerializer
 
@@ -256,7 +258,7 @@ class QuestionsViewSet(viewsets.ModelViewSet):
 
 
 class AnswersViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Answers.objects.all()
     serializer_class = AnswersSerializer
 
@@ -270,13 +272,64 @@ class AnswersViewSet(viewsets.ModelViewSet):
 
 class AdminReportsViewSet(viewsets.ViewSet):
     permission_classes = [IsAdminUser]
+
     def user_ratings(self, request):
         report = Testresults.objects.values('user__login').annotate(avg_score=Avg('total_score')).order_by('-avg_score')
         return Response(report)
+
     def completion_stats(self, request):
-        report = Testresults.objects.filter(total_score__gte=80).values('user__login', 'course__name').annotate(
-            num_completed=Count('id'))
+        report = Testresults.objects.filter(total_score__gte=80).values('user__login', 'course__name').annotate(num_completed=Count('id'))
         return Response(report)
+
+    @action(detail=False, methods=['get'])
+    def download_report(self, request):
+        pdfmetrics.registerFont(TTFont('HelveticaBold', 'HelveticaBold.ttf'))
+        # Собираем статистику для отчета
+        user_stats = Testresults.objects.values('user__login').annotate(avg_score=Avg('total_score'), num_tests=Count('id'))
+
+        # Генерация диаграммы
+        users = [stat['user__login'] for stat in user_stats]
+        avg_scores = [stat['avg_score'] for stat in user_stats]
+
+        plt.figure(figsize=(10, 6))
+        plt.bar(users, avg_scores, color='skyblue')
+        plt.xlabel('Пользователи')
+        plt.ylabel('Средний результат тестов')
+        plt.title('Средние результаты тестов пользователей')
+        plt.xticks(rotation=45, ha='right')
+
+        # Сохранение диаграммы в буфер
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plt.close()
+
+        # Генерация PDF отчета
+        pdf_buf = io.BytesIO()
+        p = canvas.Canvas(pdf_buf, pagesize=A4)
+
+        # Добавление заголовка
+        p.setFont("Helvetica-Bold", 16)
+        p.drawString(100, 800, "Отчет по результатам тестов пользователей")
+
+        # Вставка диаграммы в PDF
+        p.drawImage(ImageReader(buf), 100, 500, width=400, height=300)
+
+        # Добавляем текстовую статистику
+        y_position = 450
+        p.setFont("Helvetica", 12)
+        for stat in user_stats:
+            p.drawString(100, y_position, f"Пользователь: {stat['user__login']}, Средний результат: {stat['avg_score']:.2f}, Кол-во тестов: {stat['num_tests']}")
+            y_position -= 20
+
+        p.showPage()
+        p.save()
+
+        pdf_buf.seek(0)
+
+        # Возвращаем PDF отчет
+        return FileResponse(pdf_buf, as_attachment=True, filename='user_test_report.pdf')
+
 
 
     

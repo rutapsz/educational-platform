@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
+import './Avatar.css';  
 import axios from "axios";
 import logo from './logo.png';
+
 
 const Header = ({ openModal }) => {
 
@@ -46,7 +48,9 @@ const Header = ({ openModal }) => {
           {localStorage.getItem('username') ? (
             <>
               <li>
-                <Link to="/profile" className="auth-button">Профиль</Link>
+                <Link to="/profile" className="auth-button">
+                   <Avatar userName={localStorage.getItem('username')} />
+                </Link>
               </li>
               <li>
                 <span onClick={handleLogout} className="auth-button">Выход</span>

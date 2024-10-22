@@ -6,7 +6,7 @@ body, html {
 }
 
 header {
-  /* position: fixed; */
+  position: fixed; 
   top: 0vh;
   left: 5vw;
   right: 5vw;
@@ -124,3 +124,4 @@ nav ul li a {
 .auth-link:hover {
   text-decoration: underline; /* Пример стиля при наведении */
 }
+
