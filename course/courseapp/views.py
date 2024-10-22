@@ -230,7 +230,7 @@ class UserProfileView(APIView):
 
 
 class TestsViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Tests.objects.all()
     serializer_class = TestsSerializer
 
@@ -243,7 +243,7 @@ class TestsViewSet(viewsets.ModelViewSet):
 
 
 class QuestionsViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Questions.objects.all()
     serializer_class = QuestionsSerializer
 
@@ -256,7 +256,7 @@ class QuestionsViewSet(viewsets.ModelViewSet):
 
 
 class AnswersViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     queryset = Answers.objects.all()
     serializer_class = AnswersSerializer
 
