@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import client from "./requests";
 
-function RegisterForm({ switchForm, courseId }) {
+function RegisterForm({ switchForm, courseId = false}) {
   const [registerData, setRegisterData] = useState({
     username: '',
     password: '',
