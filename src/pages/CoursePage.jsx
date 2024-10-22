@@ -122,6 +122,13 @@ const CoursePage = () => {
     return scorePercentage >= 50;
   };
   
+  const handleMarkAsReadAndMoveNext = (topicId, isRead) => {
+    markTopicAsRead(topicId, isRead);
+    if (isRead) {
+      const nextItem = findNextItem(topicId, 'next');
+      if (nextItem) handleSelectNextItem(nextItem);
+    }
+  };
 
   const markTopicAsRead = async (topicId, isRead) => {
     const userId = localStorage.getItem('username');
@@ -153,12 +160,90 @@ const CoursePage = () => {
     } catch (error) {
         console.error('Ошибка при отметке топика как прочитанного или непрочитанного:', error);
     }
-};
+  };
+
+  const findNextItem = (currentItemId, direction) => {
+    // Находим текущий модуль
+    const currentModule = Object.keys(groupedTopics).find((module) =>
+      groupedTopics[module].some((topic) => topic.id === currentItemId) ||
+      tests.some((test) => test.id === currentItemId && test.module === parseInt(module))
+    );
+  
+    if (!currentModule) return null; // Проверка на существование модуля
+  
+    const topicsInCurrentModule = groupedTopics[currentModule];
+    const currentTopicIndex = topicsInCurrentModule.findIndex(
+      (topic) => topic.id === currentItemId
+    );
+    const currentTestIndex = tests.findIndex(
+      (test) => test.id === currentItemId && test.module === parseInt(currentModule)
+    );
+  
+    if (direction === 'next') {
+      // Логика для кнопки "Вперед"
+      // Переход к следующему топику в текущем модуле
+      if (currentTopicIndex !== -1 && currentTopicIndex + 1 < topicsInCurrentModule.length) {
+        return topicsInCurrentModule[currentTopicIndex + 1]; // Возвращаем следующий топик
+      }
+  
+      // Если это последний топик, переходим к первому тесту текущего модуля
+      if (currentTopicIndex === topicsInCurrentModule.length - 1) {
+        return tests.find((test) => test.module === parseInt(currentModule)); // Первый тест текущего модуля
+      }
+  
+      // Переход к первому топику следующего модуля
+      const nextModule = parseInt(currentModule) + 1;
+      if (groupedTopics[nextModule]) {
+        return groupedTopics[nextModule][0]; // Первый топик следующего модуля
+      }
+  
+      return null; // Если нет следующего элемента
+    } else if (direction === 'prev') {
+      // Логика для кнопки "Назад"
+      
+      // Если текущий элемент - тест
+      if (currentTestIndex !== -1) {
+        // Если находимся на тесте в третьем модуле, возвращаем первый топик третьего модуля
+        if (parseInt(currentModule) === 3) {
+          return topicsInCurrentModule[0]; // Возвращаем первый топик третьего модуля
+        }
+        
+        // Для других модулей возвращаем последний топик текущего модуля
+        return topicsInCurrentModule[topicsInCurrentModule.length - 1]; // Последний топик текущего модуля
+      }
+  
+      // Если текущий элемент - топик
+      if (currentTopicIndex > 0) {
+        return topicsInCurrentModule[currentTopicIndex - 1]; // Возвращаем предыдущий топик
+      }
+  
+      // Переход к последнему тесту предыдущего модуля
+      const prevModule = parseInt(currentModule) - 1;
+      if (prevModule >= 0 && groupedTopics[prevModule]) {
+        const lastTest = tests.filter((test) => test.module === prevModule);
+        if (lastTest.length > 0) {
+          return lastTest[lastTest.length - 1]; // Последний тест предыдущего модуля
+        }
+      }
+    }
+  
+    return null; // Если больше нет элементов для перехода
+  };
+  
+  
+  
+  
+  const handleSelectNextItem = (item) => {
+    if (item?.data_ref) {
+      handleTopicSelect(item); // Если это топик
+    } else if (item?.name && item?.module) {
+      handleTestSelect(item); // Если это тест
+    }
+  };
 
   const handleTopicSelect = async (topic) => {
     setSelectedTest(null);
     setSelectedTopic(topic);
-  
   };
   
   const handleTestSelect = (test) => {
@@ -233,8 +318,6 @@ const CoursePage = () => {
     }
   };
   
-  
-
   const handleTextInputChange = (questionId, value) => {
     setUserResponses(prev => ({ ...prev, [questionId]: value }));
   };
@@ -292,6 +375,15 @@ const CoursePage = () => {
       return tempDiv.innerHTML;
     };
   
+    const isFirstItem = (topicId) =>
+      !findNextItem(topicId, 'prev'); // Нет предыдущего элемента
+    const isLastItem = (topicId) =>
+      !findNextItem(topicId, 'next');
+
+    const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="course-page-container">
       <div className="topics-navigation">
@@ -338,7 +430,7 @@ const CoursePage = () => {
                       : 'disabled' 
                   }`}
                 >
-                  Тест {index + 1}: {test.name}{' '} 
+                  Тест {(test.module)}: {test.name}{' '} 
                   {!isModuleAccessible(test.module)}
                 </li>
               ))}
@@ -348,20 +440,57 @@ const CoursePage = () => {
       </div>
       <div className="topic-content">
       {selectedTopic && (
-        <div>
-          <div dangerouslySetInnerHTML={{ __html: handleLinks(selectedTopic.data_ref) }} />
-          <label className="read-button">
-          <input 
-              type="checkbox" 
-              checked={!!readTopics[selectedTopic.id]} 
-              onChange={() => 
-                markTopicAsRead(selectedTopic.id, !readTopics[selectedTopic.id]) 
-              } 
+          <div>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: handleLinks(selectedTopic.data_ref),
+              }}
             />
-            <span>Прочитано</span>
-        </label>
-        </div>
-      )}
+            <div className="navigation-buttons">
+              {!isFirstItem(selectedTopic.id) && (
+                <button
+                  className="nav-button"
+                  onClick={() => {
+                    const prevItem = findNextItem(selectedTopic.id, 'prev');
+                    if (prevItem) {
+                      handleSelectNextItem(prevItem);
+                      scrollToTop(); // Прокрутка к верху страницы
+                    }
+                  }}
+                >
+                  Назад
+                </button>
+              )}
+              <label className="read-button">
+                <input
+                  type="checkbox"
+                  checked={!!readTopics[selectedTopic.id]}
+                  onChange={(e) =>
+                    handleMarkAsReadAndMoveNext(
+                      selectedTopic.id,
+                      e.target.checked
+                    )
+                  }
+                />
+                <span>Текст прочитан и понят</span>
+              </label>
+              {!isLastItem(selectedTopic.id) && (
+                <button
+                  className="nav-button"
+                  onClick={() => {
+                    const nextItem = findNextItem(selectedTopic.id, 'next');
+                    if (nextItem) {
+                      handleSelectNextItem(nextItem);
+                      scrollToTop(); // Прокрутка к верху страницы
+                    }
+                  }}
+                >
+                  Вперед
+                </button>
+              )}
+            </div>
+          </div>
+        )}
         {selectedTest && (
           <div className="test-section">
             <h3 className="test-title">{selectedTest.name}</h3>
@@ -441,7 +570,40 @@ const CoursePage = () => {
                 {scores[selectedTest.id].total}
               </h3>
             )}
+            <div className="navigation-buttons">
+  {/* Стрелка назад */}
+  <button
+    className="nav-button"
+    onClick={() => {
+      const prevItem = findNextItem(selectedTest.id, 'prev');
+      if (prevItem) {
+        handleSelectNextItem(prevItem);
+        scrollToTop();
+      }
+    }}
+  >
+    Назад
+  </button>
+
+  {/* Стрелка вперед с проверкой доступности модуля */}
+  {isModuleAccessible(selectedTest.module) && (
+    <button
+      className="nav-button"
+      onClick={() => {
+        const nextItem = findNextItem(selectedTest.id, 'next');
+        if (nextItem) {
+          handleSelectNextItem(nextItem);
+          scrollToTop();
+        }
+      }}
+    >
+      Вперед
+    </button>
+  )}
+</div>
+
           </div>
+          
         )}
       </div>
       {showResultModal && (
