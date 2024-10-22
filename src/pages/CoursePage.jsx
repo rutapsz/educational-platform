@@ -18,7 +18,8 @@ const CoursePage = () => {
   const [showResultModal, setShowResultModal] = useState(false);
   const [resultSuccess, setResultSuccess] = useState(false);
   const [readTopics, setReadTopics] = useState([]);
-  
+  // const currentModule = selectedTest.module;
+  // const nextModule = parseInt(currentModule) + 1;
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,10 +43,10 @@ const CoursePage = () => {
         const answersResponse = await client.get('/api/answers/');
         setAnswers(answersResponse.data);
 
-        // // Устанавливаем первый топик по умолчанию, если он есть
-        // if (topicsResponse.data.length > 0) {
-        //   setSelectedTopic(topicsResponse.data[0]);
-        // }
+        // Устанавливаем первый топик по умолчанию, если он есть
+        if (topicsResponse.data.length > 0) {
+          setSelectedTopic(topicsResponse.data[0]);
+        }
       } catch (error) {
         console.error('Ошибка при загрузке данных', error);
       }
@@ -165,8 +166,8 @@ const CoursePage = () => {
   const findNextItem = (currentItemId, direction) => {
     // Находим текущий модуль
     const currentModule = Object.keys(groupedTopics).find((module) =>
-      groupedTopics[module].some((topic) => topic.id === currentItemId) ||
-      tests.some((test) => test.id === currentItemId && test.module === parseInt(module))
+      groupedTopics[module].some((topic) => topic.id === currentItemId) //||
+      // tests.some((test) => test.id === currentItemId && test.module === parseInt(module))
     );
   
     if (!currentModule) return null; // Проверка на существование модуля
@@ -200,12 +201,14 @@ const CoursePage = () => {
       return null; // Если нет следующего элемента
     } else if (direction === 'prev') {
       // Логика для кнопки "Назад"
-      
+      // if (parseInt(currentModule) === 2) {
+      //   return topicsInCurrentModule[0];
+      // }
       // Если текущий элемент - тест
       if (currentTestIndex !== -1) {
         // Если находимся на тесте в третьем модуле, возвращаем первый топик третьего модуля
-        if (parseInt(currentModule) === 3) {
-          return topicsInCurrentModule[0]; // Возвращаем первый топик третьего модуля
+        if (parseInt(currentModule) === 2) {
+          return 2; // Возвращаем первый топик третьего модуля
         }
         
         // Для других модулей возвращаем последний топик текущего модуля
@@ -230,26 +233,46 @@ const CoursePage = () => {
     return null; // Если больше нет элементов для перехода
   };
   
-  
-  
-  
   const handleSelectNextItem = (item) => {
     if (item?.data_ref) {
       handleTopicSelect(item); // Если это топик
-    } else if (item?.name && item?.module) {
+    } else /*if (item?.name && item?.module)*/ {
       handleTestSelect(item); // Если это тест
     }
   };
 
+  
+
   const handleTopicSelect = async (topic) => {
     setSelectedTest(null);
     setSelectedTopic(topic);
+    localStorage.setItem('selectedTopic', topic.id);
   };
   
   const handleTestSelect = (test) => {
     setSelectedTopic(null);
     setSelectedTest(test);
+    localStorage.setItem('selectedTest', test.id);
   };
+
+  useEffect(() => {
+    const savedTopicId = localStorage.getItem('selectedTopic');
+    const savedTestId = localStorage.getItem('selectedTest');
+
+    if (savedTopicId) {
+      const savedTopic = topics.find(topic => topic.id === parseInt(savedTopicId));
+      if (savedTopic) {
+        setSelectedTopic(savedTopic);
+      }
+    }
+
+    if (savedTestId) {
+      const savedTest = tests.find(test => test.id === parseInt(savedTestId));
+      if (savedTest) {
+        setSelectedTest(savedTest);
+      }
+    }
+  }, [topics, tests]);
 
   const handleSubmit = async (e, testId) => {
     e.preventDefault();
@@ -355,9 +378,32 @@ const CoursePage = () => {
     return groups;
   }, {});
 
+  const handleNextModule = () => {
+    const currentModule = selectedTest.module;
+    const nextModule = parseInt(currentModule) + 1;
+  
+    // Исключение для третьего модуля
+    if (currentModule === 3) {
+      window.location.href = '/profile';
+      return;
+    }
+  
+    // Переход на первый топик следующего модуля, если он есть
+    if (groupedTopics[nextModule]) {
+      const firstTopicInNextModule = groupedTopics[nextModule][0];
+      handleTopicSelect(firstTopicInNextModule);
+    } else {
+      console.log('Следующий модуль не найден');
+    }
+  };
+
   const closeModal = () => {
+    
     setShowResultModal(false);
-    window.location.reload(); // Перезагрузка страницы
+    if (resultSuccess) {
+      handleNextModule(); // Переход на следующий модуль при успешном тесте
+    }
+    window.location.reload();
   };
   
     // Функция для обработки ссылок
@@ -570,37 +616,36 @@ const CoursePage = () => {
                 {scores[selectedTest.id].total}
               </h3>
             )}
-            <div className="navigation-buttons">
-  {/* Стрелка назад */}
-  <button
-    className="nav-button"
-    onClick={() => {
-      const prevItem = findNextItem(selectedTest.id, 'prev');
-      if (prevItem) {
-        handleSelectNextItem(prevItem);
-        scrollToTop();
-      }
-    }}
-  >
-    Назад
-  </button>
+            {/* <div className="navigation-buttons">
+              Стрелка назад
+              <button
+                className="nav-button"
+                onClick={() => {
+                  const prevItem = findNextItem(selectedTest.id, 'prev');
+                  if (prevItem) {
+                    handleSelectNextItem(prevItem);
+                    scrollToTop();
+                  }
+                }}
+              >
+                Назад
+              </button>
 
-  {/* Стрелка вперед с проверкой доступности модуля */}
-  {isModuleAccessible(selectedTest.module) && (
-    <button
-      className="nav-button"
-      onClick={() => {
-        const nextItem = findNextItem(selectedTest.id, 'next');
-        if (nextItem) {
-          handleSelectNextItem(nextItem);
-          scrollToTop();
-        }
-      }}
-    >
-      Вперед
-    </button>
-  )}
-</div>
+              {isModuleAccessible(selectedTest.module+1) && (
+                <button
+                  className="nav-button"
+                  onClick={() => {
+                    const nextItem = findNextItem(selectedTest.id, 'next');
+                    if (nextItem) {
+                      handleSelectNextItem(nextItem);
+                      scrollToTop();
+                    }
+                  }}
+                >
+                  Вперед
+                </button>
+              )}
+            </div> */}
 
           </div>
           
@@ -609,7 +654,9 @@ const CoursePage = () => {
       {showResultModal && (
         <div className={`result-modal ${resultSuccess ? 'modal-success' : 'modal-fail'}`}>
           <div className="result-content">
-            <h3>{resultSuccess ? 'Поздравляем! Вы прошли тест.' : 'К сожалению, вы не прошли тест.'}</h3>
+            <h3>
+              {resultSuccess ? 'Поздравляем! Вы прошли тест.' : 'К сожалению, вы не прошли тест.'}
+            </h3>
             <button onClick={closeModal}>Закрыть</button>
           </div>
         </div>

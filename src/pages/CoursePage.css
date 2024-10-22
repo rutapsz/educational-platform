@@ -254,7 +254,7 @@
 .navigation-buttons {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* Распределение кнопок по краям */
   margin-top: 10px;
 }
 
@@ -277,6 +277,8 @@
   display: flex;
   align-items: center;
   font-size: 20px;
+  flex-grow: 1; /* Позволяет этой метке занимать все доступное пространство */
+  justify-content: center; /* Центрирует содержимое */
 }
 
 .read-button input {

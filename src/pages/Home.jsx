@@ -22,6 +22,9 @@ const Home = ({openModal}) => {
 
   return (
     <div className="home-container">
+      <p class="description">Платформа Авторика — качественный и удобный способ получения знаний дистанционно. <br/>
+        Создавайте IT-продукты и творческие произведения не переживая о юридических последствиях, 
+        ведь благодаря курсам вы будете знать как оформить, использовать и защитить свои авторские права. </p>
       <h1>Курсы</h1>
       <div className="course-grid">
         {courses.map((course) => (
@@ -32,7 +35,7 @@ const Home = ({openModal}) => {
                 (<Link to={`/course/${course.id}`} className="view-course-button">
                   Зайти на курс
                 </Link>) : (
-                    <span onClick={() => openModal('register')} className="view-course-button">Зайти на курс</span>
+                    <span onClick={() => openModal('register', course.id)} className="view-course-button">Зайти на курс</span>
                 )
             }
           </div>
