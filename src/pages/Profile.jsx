@@ -21,7 +21,7 @@ const TestResults = () => {
         });
   };
 
-
+  const courseId = 1;
   useEffect(() => {
     get_profile(); // Вызов функции для получения данных профиля при загрузке компонента
   }, []);

@@ -49,7 +49,7 @@ const Header = ({ openModal }) => {
             <>
               <li>
                 <Link to="/profile" className="auth-button">
-                   <Avatar userName={localStorage.getItem('username')} />
+                   {/* <Avatar userName={localStorage.getItem('username')} /> */}
                 </Link>
               </li>
               <li>
