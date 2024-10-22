@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import client from "./requests";
 
-function RegisterForm({ switchForm }) {
+function RegisterForm({ switchForm, courseId }) {
   const [registerData, setRegisterData] = useState({
     username: '',
     password: '',
@@ -42,7 +42,11 @@ function RegisterForm({ switchForm }) {
               localStorage.setItem('userid', resp.data.userid);
               localStorage.setItem('username', resp.data.username);
               localStorage.setItem('staff', resp.data.staff);
-              window.location.reload();
+              if (courseId) {
+                  window.location.href = `/course/${courseId}`;
+              } else {
+                  window.location.reload();
+        }
           }).catch(error => {
               console.error('Ошибка при входе:', error.resp?.data || error);
           });
