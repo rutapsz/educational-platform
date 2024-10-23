@@ -16,7 +16,7 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  /* text-align: center; */
   position: relative;
   width: 400px;
 }
@@ -66,19 +66,28 @@
 
 .checkbox-container {
   display: flex;
-  align-items: center;
+  align-items: left!important;
+  justify-content: flex-start; /* Оставляем это свойство для выравнивания по левому краю */
   margin-bottom: 10px;
-  margin-left: 0 !important; /* Убедитесь, что нет дополнительных отступов слева */
+  padding: 0; /* Убедитесь, что нет дополнительных отступов */
+  width: 100%; /* Это нужно для того, чтобы контейнер заполнял всю ширину */
 }
 
 .checkbox-container input[type="checkbox"] {
-  margin-right: 5px !important; /* Уменьшите это значение, если нужно */
-  margin-left: 0 !important; /* Убедитесь, что нет дополнительных отступов слева */
+  margin-right: 5px;
+  margin-left: 0; /* Убираем отступ слева */
 }
 
 .checkbox-container label {
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0;
+  padding: 0;
+  text-align: left; /* Убедитесь, что текст выровнен по левому краю */
+}
+
+.form div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Выровняем все элементы внутри div по левому краю */
 }
 
 .checkbox-container a {
