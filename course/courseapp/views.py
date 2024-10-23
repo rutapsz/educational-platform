@@ -56,6 +56,7 @@ class UserLogin(APIView):
             user = Users.objects.filter(username=data['username']).first()
             data['staff'] = user.is_staff
             data['username'] = user.id
+            data['login'] = user.username
             return Response(data, status=status.HTTP_200_OK)
 
 
@@ -387,10 +388,9 @@ class CertificateViewSet(viewsets.ViewSet):
             course = Courses.objects.get(pk=course_id)
             
             results = Testresults.objects.filter(user=user, test__course=course)
-            total_tests = results.count()
-            passed_tests = results.filter(total_score__gte=80).count()
-
-            if total_tests == 0 or (passed_tests / total_tests) < 0.8:
+            passed_tests = results.count()
+            total_tests = Tests.objects.filter(course_id=course_id).count()
+            if total_tests == 0 or (passed_tests == total_tests):
                 return Response({"error": "Процент прохождения курса менее 80%"}, status=status.HTTP_400_BAD_REQUEST)
                 
             score = int((passed_tests / total_tests) * 100)
