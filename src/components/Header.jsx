@@ -16,10 +16,12 @@ const Header = ({ openModal }) => {
         withXSRFToken: true,
       }).then(res => {
         localStorage.setItem('username', '');
+        localStorage.setItem('login', '');
         localStorage.setItem('staff', '');
         window.location.replace(process.env.REACT_APP_LINK + ':' + process.env.REACT_APP_FRONT);
       }).catch(error => {
         localStorage.setItem('username', '');
+        localStorage.setItem('login', '');
         localStorage.setItem('staff', '');
         window.location.replace(process.env.REACT_APP_LINK + ':' + process.env.REACT_APP_FRONT);
       });
@@ -50,12 +52,12 @@ const Header = ({ openModal }) => {
           ) : null}
         </ul>
         <ul className={`authorization ${isMenuOpen ? 'show' : ''}`}>
-          {localStorage.getItem('username') ? (
+          {localStorage.getItem('login') ? (
             <>
               <li>
                 <Link to="/profile" className="auth-button">
                   {/* <Avatar userName={localStorage.getItem('username')} /> */}
-                  {localStorage.getItem('username')}
+                  {localStorage.getItem('login')}
                 </Link>
               </li>
               <li>

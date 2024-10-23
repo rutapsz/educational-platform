@@ -43,7 +43,7 @@ function RegisterForm({ switchForm, courseId = false}) {
             username: registerData.username,
             password: registerData.password
           }).then(resp => {
-              localStorage.setItem('userid', resp.data.userid);
+              localStorage.setItem('login', resp.data.login);
               localStorage.setItem('username', resp.data.username);
               localStorage.setItem('staff', resp.data.staff);
               if (courseId) {
