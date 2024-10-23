@@ -35,7 +35,7 @@ const Home = ({openModal}) => {
                 (<Link to={`/course/${course.id}`} className="view-course-button">
                   Зайти на курс
                 </Link>) : (
-                    <span onClick={() => openModal('register', course.id)} className="view-course-button">Зайти на курс</span>
+                    <span onClick={() => openModal('register')} className="view-course-button">Зайти на курс</span>
                 )
             }
           </div>

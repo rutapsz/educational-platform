@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import client from "./requests";
+import './RegisterForm.css';
 
 function RegisterForm({ switchForm, courseId = false}) {
+  const [isTermsChecked, setIsTermsChecked] = useState(false);
+  const [isPrivacyChecked, setIsPrivacyChecked] = useState(false);
+
   const [registerData, setRegisterData] = useState({
     username: '',
     password: '',
@@ -101,7 +105,36 @@ function RegisterForm({ switchForm, courseId = false}) {
           onChange={handleRegisterChange}
         />
       </div>
-      <button type="submit">Зарегистрироваться</button>
+      <div className="checkbox-container">
+        <input
+          type="checkbox"
+          id="terms"
+          checked={isTermsChecked}
+          onChange={(e) => setIsTermsChecked(e.target.checked)}
+        />
+        <label htmlFor="terms">
+          Я принимаю <a href="./Пользовательское соглашение.pdf" target="_blank" rel="noopener noreferrer">Пользовательское соглашение</a>
+        </label>
+      </div>
+      <div className="checkbox-container">
+          <input
+            type="checkbox"
+            id="privacy"
+            checked={isPrivacyChecked}
+            onChange={(e) => setIsPrivacyChecked(e.target.checked)}
+          />
+          <label htmlFor="privacy">
+            Я принимаю <a href="./Согласие на обработку ПД.pdf" target="_blank" rel="noopener noreferrer">Согласие на обработку персональных данных</a>
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={!isTermsChecked || !isPrivacyChecked}
+          style={{ marginTop: '10px' }}
+        >
+          Зарегистрироваться
+        </button>
       <p>
         Уже есть аккаунт?{' '}
         <span onClick={() => switchForm('login')} style={{ cursor: 'pointer', color: 'blue' }}>

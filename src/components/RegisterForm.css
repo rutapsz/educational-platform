@@ -1,0 +1,26 @@
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Отступ между контейнерами */
+  }
+  
+  .checkbox-container input[type="checkbox"] {
+    margin-right: 10px!important; /* Отступ между галочкой и текстом */
+    display: inline-block!important; /* Убедитесь, что галочка отображается как блочный элемент */
+  }
+  
+  .checkbox-container label {
+    display: inline-block!important; /* Убедитесь, что метка отображается как блочный элемент */
+    margin-left: 0!important; /* Убедитесь, что нет лишних отступов слева */
+  }
+  
+  
+  .checkbox-container label a {
+    text-decoration: none!important; /* Убираем подчеркивание ссылок */
+    color: inherit!important; /* Наследуем цвет текста */
+  }
+  
+  .checkbox-container label a:hover {
+    text-decoration: underline; /* Подчеркивание при наведении */
+  }
+  

@@ -20,6 +20,12 @@ const CoursePage = () => {
   const [readTopics, setReadTopics] = useState([]);
   // const currentModule = selectedTest.module;
   // const nextModule = parseInt(currentModule) + 1;
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  const toggleMobileNav = () => {
+    setIsMobileNavOpen(!isMobileNavOpen);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -44,15 +50,16 @@ const CoursePage = () => {
         setAnswers(answersResponse.data);
 
         // Устанавливаем первый топик по умолчанию, если он есть
-        if (topicsResponse.data.length > 0) {
-          setSelectedTopic(topicsResponse.data[0]);
-        }
+        // if (topicsResponse.data.length > 0) {
+        //   setSelectedTopic(topicsResponse.data[0]);
+        // }
       } catch (error) {
         console.error('Ошибка при загрузке данных', error);
       }
     };
     fetchData();
   }, [id]);
+  
   useEffect(() => {
     const fetchTestResults = async () => {
       const userId = localStorage.getItem('username');
@@ -259,20 +266,27 @@ const CoursePage = () => {
     const savedTopicId = localStorage.getItem('selectedTopic');
     const savedTestId = localStorage.getItem('selectedTest');
 
+    // Устанавливаем только одно состояние
     if (savedTopicId) {
       const savedTopic = topics.find(topic => topic.id === parseInt(savedTopicId));
       if (savedTopic) {
         setSelectedTopic(savedTopic);
+        setSelectedTest(null); // Сбрасываем тест
       }
-    }
-
-    if (savedTestId) {
+    } else if (savedTestId) {
       const savedTest = tests.find(test => test.id === parseInt(savedTestId));
       if (savedTest) {
         setSelectedTest(savedTest);
+        setSelectedTopic(null); // Сбрасываем топик
       }
     }
   }, [topics, tests]);
+
+  useEffect(() => {
+    if (!selectedTopic && !selectedTest && topics.length > 0) {
+      setSelectedTopic(topics[0]); // Устанавливаем первый топик
+    }
+  }, [selectedTopic, selectedTest, topics]);
 
   const handleSubmit = async (e, testId) => {
     e.preventDefault();
@@ -403,7 +417,11 @@ const CoursePage = () => {
     if (resultSuccess) {
       handleNextModule(); // Переход на следующий модуль при успешном тесте
     }
-    window.location.reload();
+    const currentModule = selectedTest.module;
+    if (currentModule != 3) {
+      window.location.reload();
+    }
+    
   };
   
     // Функция для обработки ссылок
@@ -432,7 +450,10 @@ const CoursePage = () => {
 
   return (
     <div className="course-page-container">
-      <div className="topics-navigation">
+      <div className="mobile-nav-toggle" onClick={toggleMobileNav}>
+        <span>{isMobileNavOpen ? 'Закрыть меню курса' : 'Меню курса'}</span>
+      </div>
+      <div className={`topics-navigation ${isMobileNavOpen ? 'open' : ''}`}>
         <h2>{courseName}</h2>
         {Object.keys(groupedTopics).map((module) => (
           <div key={module}>

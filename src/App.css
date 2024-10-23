@@ -3,13 +3,22 @@ body, html {
   padding: 0;
   height: 100%;
   background-image: url('./background.jpg');
-  background-size: 15%;
-  background-repeat: repeat;
-  background-position: top left;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 .App {
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-image: url('./background.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .App-logo {
@@ -46,16 +55,6 @@ body, html {
     transform: rotate(360deg);
   }
 }
-.App {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-image: url('./background.jpg'); /* Укажите путь к вашему изображению */
-  background-size: cover; /* Масштабирует изображение, чтобы оно покрывало весь экран */
-  background-repeat: no-repeat; /* Предотвращает повторение изображения */
-  background-attachment: fixed; /* Фиксирует изображение при прокрутке */
-}
 
 .form-container {
   background-color: #fff;
@@ -88,12 +87,48 @@ body, html {
   padding: 10px;
   border: none;
   border-radius: 5px;
-  background-color: #007bff;
+  background-color: #8C8CF4;
   color: #fff;
   cursor: pointer;
 }
 
 .form button:hover {
-  background-color: #0056b3;
+  background-color: #8C8CF4;
 }
 
+/* Медиа-запросы для мобильных устройств */
+@media (max-width: 768px) {
+  .App-logo {
+    height: 30vmin;
+  }
+
+  .App-header {
+    font-size: calc(12px + 2vmin);
+  }
+
+  .form-container {
+    padding: 15px;
+  }
+
+  .form input, .form button {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .App-logo {
+    height: 25vmin;
+  }
+
+  .App-header {
+    font-size: calc(14px + 2vmin);
+  }
+
+  .form-container {
+    padding: 10px;
+  }
+
+  .form input, .form button {
+    padding: 6px;
+  }
+}

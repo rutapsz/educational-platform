@@ -7,7 +7,8 @@ const Footer = () => {
       <div className="footer-content">
         <p>&copy; {new Date().getFullYear()} Авторика</p>
         <div className="footer-links">
-        <a href="/Пользовательское соглашение.pdf" target="_blank" rel="noopener noreferrer">Пользовательское соглашение</a>
+        <a href="./Пользовательское соглашение.pdf" target="_blank" rel="noopener noreferrer">Пользовательское соглашение</a>
+        <a href="./Согласие на обработку ПД.pdf" target="_blank" rel="noopener noreferrer">Согласие на обработку персональных данных</a>
         </div>
       </div>
     </footer>

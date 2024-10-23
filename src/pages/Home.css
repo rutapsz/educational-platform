@@ -2,7 +2,6 @@
   padding: 0px;
   text-align: center;
   margin-top: 3vh;
-  
 }
 
 .course-grid {
@@ -54,4 +53,67 @@
   border-radius: 15vh;
   padding: 5vh;
   font-weight: 600;
+}
+
+/* Медиа-запросы для мобильных устройств */
+@media (max-width: 768px) {
+  .home-container {
+    margin-top: 10vh; /* Увеличиваем отступ сверху для мобильных устройств */
+  }
+
+  .course-grid {
+    grid-template-columns: repeat(2, calc(50% - 10px));
+    gap: 10px;
+    max-width: 90%;
+  }
+
+  .course-card {
+    width: 45vw;
+    height: 30vw;
+    padding: 15px;
+    margin-bottom: 1vw;
+  }
+
+  .view-course-button {
+    padding: 8px 16px;
+  }
+
+  .description {
+    font-size: 3vh;
+    margin: 5vh;
+    border: 2.5vh dashed #8C8CF4;
+    border-radius: 10vh;
+    padding: 3vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-container {
+    margin-top: 15vh; /* Увеличиваем отступ сверху для мобильных устройств */
+  }
+
+  .course-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-width: 95%;
+  }
+
+  .course-card {
+    width: 90vw;
+    height: 45vw;
+    padding: 10px;
+    margin-bottom: 1vw;
+  }
+
+  .view-course-button {
+    padding: 6px 12px;
+  }
+
+  .description {
+    font-size: 2.5vh;
+    margin: 3vh;
+    border: 2vh dashed #8C8CF4;
+    border-radius: 8vh;
+    padding: 2vh;
+  }
 }

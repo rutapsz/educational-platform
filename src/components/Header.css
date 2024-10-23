@@ -6,21 +6,26 @@ body, html {
 }
 
 header {
-  position: fixed; 
+  position: fixed;
   top: 0vh;
-  left: 5vw;
-  right: 5vw;
+  left: 0;
+  right: 0;
   height: 10vh;
-  background-color: #003DAE;
+  background-color: #8C8CF4;
   color: #fff;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 0 20px;
   box-sizing: border-box;
   z-index: 1000;
   border-radius: 10px;
-  margin: 1vh 1vw; 
+  margin: 1vh 1vw;
+}
+
+.logo-container {
+  flex: 1;
+  text-align: center;
 }
 
 nav {
@@ -31,61 +36,30 @@ nav {
   padding: 10px 30px;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.menu {
+.menu, .authorization {
   display: flex;
   list-style-type: none;
   padding: 0;
   margin: 0;
 }
 
-.authorization {
-  display: flex;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+.menu li, .authorization li {
+  margin-left: 20px;
 }
 
-.authorization li {
-  margin-left: 20px; /* Добавляем отступы между элементами */
-}
-
-.authorization li a,
-.authorization li span {
+.menu li a, .authorization li a {
   color: #fff;
   text-decoration: none;
   font-size: 1.2em;
   cursor: pointer;
 }
 
-.authorization li a:hover,
-.authorization li span:hover {
-  text-decoration: none; 
-}
-
-nav ul {
-  list-style: none;
-  display: flex;
-  margin: 0;
-  padding: 0;
-}
-
-nav ul li {
-  margin-left: 0vh;
-}
-
-nav ul li a {
-  color: #fff;
+.menu li a:hover, .authorization li a:hover {
   text-decoration: none;
 }
 
 .auth-button {
   background-color: #908f87;
-  color: #003DAE;
   border: none;
   border-radius: 15px;
   padding: 9px 16px;
@@ -99,29 +73,83 @@ nav ul li a {
   background-color: #e0e0e0;
 }
 
-@media (max-width: 768px) {
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  nav ul {
-    flex-direction: column;
-    margin-top: 10px;
-  }
-
-  nav ul li {
-    margin: 10px 0;
-  }
-}
 .auth-link {
   cursor: pointer;
-  /* Добавьте другие стили, если необходимо */
-  color: #000; /* Пример стиля */
-  text-decoration: none; /* Убирает подчеркивание у ссылок */
+  color: #000;
+  text-decoration: none;
 }
 
 .auth-link:hover {
-  text-decoration: underline; /* Пример стиля при наведении */
+  text-decoration: underline;
 }
 
+.mobile-menu-icon {
+  display: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: #fff;
+  margin-right: 20px;
+}
+
+/* Медиа-запросы для мобильных устройств */
+@media (max-width: 768px) {
+  header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+    padding: 10px;
+  }
+
+  nav {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .menu, .authorization {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .menu li, .authorization li {
+    margin: 10px 0;
+  }
+
+  .logo-container {
+    margin-bottom: 0;
+    margin: 0vh 10vw;
+  }
+
+  .mobile-menu-icon {
+    display: block;
+    position: absolute;
+    left: 20px;
+  }
+
+  .auth-button {
+    padding: 7px 14px;
+  }
+
+  .authorization.show {
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 5px;
+  }
+
+  nav {
+    padding: 5px;
+  }
+
+  .logo-container {
+    margin-bottom: 0;
+  }
+
+  .auth-button {
+    padding: 5px 10px;
+  }
+}
