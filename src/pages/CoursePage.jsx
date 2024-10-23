@@ -127,7 +127,7 @@ const CoursePage = () => {
     const scorePercentage = (correctScore / totalQuestions) * 100;
   
     // Возвращаем доступность модуля только если процент >= 50
-    return scorePercentage >= 50;
+    return scorePercentage >= 80;
   };
   
   const handleMarkAsReadAndMoveNext = (topicId, isRead) => {
