@@ -33,7 +33,7 @@ function LoginForm({ switchForm }) {
         }, {
             withCredentials: true,
         }).then(res => {
-            localStorage.setItem('login', resp.data.login);
+            localStorage.setItem('login', res.data.login);
             localStorage.setItem('username', res.data.username);
             localStorage.setItem('staff', res.data.staff);
             window.location.reload();
