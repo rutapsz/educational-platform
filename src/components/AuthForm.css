@@ -47,7 +47,7 @@
   padding: 10px;
   border: none;
   border-radius: 5px;
-  background-color: #007bff;
+  background-color: #8C8CF4;
   color: #fff;
   cursor: pointer;
   margin-top: 10px;
@@ -83,7 +83,7 @@
 
 .checkbox-container a {
   text-decoration: none;
-  color: #007bff;
+  color: #8C8CF4;
 }
 
 .checkbox-container a:hover {
