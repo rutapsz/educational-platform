@@ -1,0 +1,265 @@
+[33mcommit ee135f4b73bc83c4cf295fe9fa198cf255d128e2[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: ShadowVenser <aeaes1215@gmail.com>
+Date:   Thu Oct 24 07:39:49 2024 +0300
+
+    Профиль до абобных сертификатов
+
+[33mcommit 977f2cc4dda3970abb9e159019f1e1d09b0fe0f6[m
+Author: ShadowVenser <aeaes1215@gmail.com>
+Date:   Thu Oct 24 07:05:17 2024 +0300
+
+    Сертификаты, мб даже работают
+
+[33mcommit 792e79a718735ae6f7e49b85648db2243d6715ed[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Thu Oct 24 04:59:44 2024 +0300
+
+    стили
+
+[33mcommit 8c0b469384f6a99a8650461845e703897f6d5571[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Thu Oct 24 04:59:21 2024 +0300
+
+    стили
+
+[33mcommit 503a0fb6b80fb2a703fecbb57ae103a0fe372b66[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Thu Oct 24 04:32:13 2024 +0300
+
+    сертификат в виде абобы
+
+[33mcommit 2a4eed8efe134177d54bf664d77eea2924a31c4e[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Wed Oct 23 13:11:23 2024 +0300
+
+    процент в курсах
+
+[33mcommit 2b48a8110b447b2438c21dee398e86579ec67d76[m
+Merge: 9586cdc 1c04665
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Wed Oct 23 12:56:06 2024 +0300
+
+    Merge branch 'master' of https://github.com/rutapsz/educational-platform
+
+[33mcommit 9586cdc2be7a7fa60c7a25d295a8fc2c43fe4468[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Wed Oct 23 12:55:19 2024 +0300
+
+    изменения стилей регистрации и контейнеров курсов
+
+[33mcommit 1c046657913f987e5dcb77e1659c18782f204598[m
+Author: ShadowVenser <aeaes1215@gmail.com>
+Date:   Wed Oct 23 11:49:28 2024 +0300
+
+    Debug: LoginForm.jsx
+
+[33mcommit 7fec683d3702ede3852e889bbfb0524cb94834ab[m
+Author: ShadowVenser <aeaes1215@gmail.com>
+Date:   Wed Oct 23 11:38:43 2024 +0300
+
+    Debug: сертификаты, профиль (отображение)
+
+[33mcommit 6230c125b6ebe0d87285e0764ce7ec6eaa943a54[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Wed Oct 23 09:44:38 2024 +0300
+
+    цвета кнопок
+
+[33mcommit cb2486d9911f8993e4f22db1e25624e00afbbe46[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Wed Oct 23 07:35:54 2024 +0300
+
+    Update Header.jsx
+
+[33mcommit 4893bc98878771d49385758bd8ff2b09ca99b0f4[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Wed Oct 23 04:22:04 2024 +0300
+
+    Доработки
+
+[33mcommit 6e36df68ca13a9a0dccc1fce434614165d4e02c0[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Wed Oct 23 01:12:18 2024 +0300
+
+    улучшенные стрелки
+
+[33mcommit fae445242402b4682fbcf3d6dc9fcc07cb1a3feb[m
+Merge: aeab1b9 63f37ae
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Wed Oct 23 00:46:43 2024 +0300
+
+    Merge branch 'master' of https://github.com/rutapsz/educational-platform
+
+[33mcommit aeab1b9e2eda4b060443419b0f92bc904fb856ea[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Wed Oct 23 00:44:46 2024 +0300
+
+    доработанные стрелки
+
+[33mcommit 63f37ae74037a195d9e378de4c88a8d354d4cc2a[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 23:08:44 2024 +0300
+
+    Update views.py
+
+[33mcommit c72d2c9a7c7c92949577d44c212e3c333c287e1a[m
+Author: Sergey <66383505+ShadowVenser@users.noreply.github.com>
+Date:   Tue Oct 22 23:04:31 2024 +0300
+
+    Update permissions in view.py
+
+[33mcommit ad71d50739e710a6984de01298739fccb00c10fc[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 22:52:43 2024 +0300
+
+    Update Profile.jsx
+
+[33mcommit e2b18a4569457b4788396bfd3cb79b071a028616[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 22:17:26 2024 +0300
+
+    Update Home.jsx
+
+[33mcommit c32eb2ee6a9b39cabc3eafab66ac1bbaa8c6ae2a[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 22:11:29 2024 +0300
+
+    Update RegisterForm.jsx
+
+[33mcommit c9f2a0444634e536932d8dd5ef0639239a785f63[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 22:06:15 2024 +0300
+
+    Update RegisterForm.jsx
+
+[33mcommit 73b4d0b18861a9cf63331a199eba6fb7e908333b[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 21:59:03 2024 +0300
+
+    Update Home.jsx
+
+[33mcommit 13e18f9ea86a683581b5625404a4f87d58b48c67[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 21:45:32 2024 +0300
+
+    Update Header.jsx
+
+[33mcommit f3dab8e5f628cdfda202ee6e3bb5727a1c3be3c8[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 21:27:08 2024 +0300
+
+    Update Header.jsx
+
+[33mcommit 49052af50396bbcc0f4d27c8c49e125c7cf9b309[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 21:22:01 2024 +0300
+
+    Add files via upload
+
+[33mcommit f450201576a74888775e8589615f228cbaca209c[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 21:18:59 2024 +0300
+
+    Update Header.css
+
+[33mcommit c8b144456635897cb6da244f1b8a0d47dd1ab47c[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 21:15:30 2024 +0300
+
+    авка
+
+[33mcommit 681222feaad9ca4f9ab2cb7851b03c0b3635cb15[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Tue Oct 22 20:33:17 2024 +0300
+
+    Update Header.css
+    
+    фиксирован хедер
+
+[33mcommit 0d0eed8fe33570b34e4a7b33213fd460aeb0e6c2[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Tue Oct 22 19:16:28 2024 +0300
+
+    стрелки
+
+[33mcommit fccedd0a850a76a535627c662c1eaae63fdabb93[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Mon Oct 21 13:14:12 2024 +0300
+
+    Update views.py
+    
+    добавлен пдфметрикс
+
+[33mcommit 774d87bb19df3d727ed08d95a9127d29044e13b3[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Mon Oct 21 10:48:48 2024 +0300
+
+    отступ
+
+[33mcommit 5202e12fcdf15fcf1017e724d8bbd85e1f54ed99[m
+Author: Sergey <66383505+ShadowVenser@users.noreply.github.com>
+Date:   Mon Oct 21 09:34:55 2024 +0300
+
+    Add files via upload
+
+[33mcommit 68e6d57250200a51a7c5710e3d1ffe255fd2090d[m
+Author: Sergey <66383505+ShadowVenser@users.noreply.github.com>
+Date:   Mon Oct 21 08:46:33 2024 +0300
+
+    Update CoursePage.jsx
+
+[33mcommit 06046aa0684b56af78f71797ca1a489a9037d4cb[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Mon Oct 21 03:43:09 2024 +0300
+
+    Update views.py
+
+[33mcommit ba7248a5d51482ba712849a51d43720965746f1e[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Mon Oct 21 03:41:56 2024 +0300
+
+    Update views.py
+
+[33mcommit 3a050970af133865443dc2cf3352c54443201eed[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Mon Oct 21 03:36:54 2024 +0300
+
+    пока так, потом мб отдельную папку создам
+
+[33mcommit 0529bb0442424860a64f4670302de21948a1be26[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Mon Oct 21 03:35:32 2024 +0300
+
+    создание сертификата по дизайну
+
+[33mcommit b25db42c8321b1e89c66ef5aaeb2ab5f401d6f64[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Mon Oct 21 03:20:13 2024 +0300
+
+    фон
+
+[33mcommit 42c88b1a02fa3629c5d66fd17eef636e49fa0767[m
+Author: Vitalii <rutapsz@gmail.com>
+Date:   Mon Oct 21 03:00:51 2024 +0300
+
+    галочки+крестики на окнах+открытие регистрации при попытке зайти на курс
+
+[33mcommit cd6944241a097e2aa78be1a9b30be8d1c4bde528[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Sun Oct 20 12:40:10 2024 +0300
+
+    оч нужный коммент
+
+[33mcommit 8daef06d3225eca94bca931a1ea5dfdeb97800cc[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Sun Oct 20 12:36:36 2024 +0300
+
+    НЕТ ОПТРАВКИ НА ИМЕЙЛ
+
+[33mcommit 4f2d6e4d02d8b7f41bc9029c9fdb52564cf383b1[m
+Author: temraq <40861165+temraq@users.noreply.github.com>
+Date:   Sat Oct 19 09:59:40 2024 +0300
+
+    оверфлоу до кучи
+    
+    чет я не понимаю, что мне сделать, чтоб�
