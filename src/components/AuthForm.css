@@ -16,9 +16,10 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  /* text-align: center; */
   position: relative;
   width: 400px;
+  max-height: 90vh; /* Ограничиваем высоту контейнера */
+  overflow-y: auto; /* Добавляем вертикальную прокрутку */
 }
 
 .form {

@@ -136,6 +136,7 @@ const CoursePage = () => {
       const nextItem = findNextItem(topicId, 'next');
       if (nextItem) handleSelectNextItem(nextItem);
     }
+    scrollToTop();
   };
 
   const markTopicAsRead = async (topicId, isRead) => {
@@ -326,7 +327,7 @@ const CoursePage = () => {
     setScores(prev => ({ ...prev, [testId]: { correct: correctCount, total: totalQuestions } }));
     
     const scorePercent = (correctCount / totalQuestions) * 100;
-    setResultSuccess(scorePercent > 50);
+    setResultSuccess(scorePercent > 80);
     setShowResultModal(true);
 
     // Получение ID пользователя из localStorage
@@ -521,7 +522,7 @@ const CoursePage = () => {
                     const prevItem = findNextItem(selectedTopic.id, 'prev');
                     if (prevItem) {
                       handleSelectNextItem(prevItem);
-                      scrollToTop(); // Прокрутка к верху страницы
+                      scrollToTop();
                     }
                   }}
                 >
