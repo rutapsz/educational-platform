@@ -82,14 +82,14 @@ class Userescoursesrel(models.Model):
         db_table = 'userescoursesrel'
 
 
-class Users(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    login = models.CharField(unique=True, max_length=32)
-    password = models.CharField()
-    email = models.CharField(unique=True, blank=True, null=True)
-    role = models.CharField(blank=True, null=True)
-    token = models.CharField(blank=True, null=True)
-    seance = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'users'
+# class Users(models.Model):
+#     id = models.BigAutoField(primary_key=True)
+#     login = models.CharField(unique=True, max_length=32)
+#     password = models.CharField()
+#     email = models.CharField(unique=True, blank=True, null=True)
+#     role = models.CharField(blank=True, null=True)
+#     token = models.CharField(blank=True, null=True)
+#     seance = models.DateTimeField(blank=True, null=True)
+#
+#     class Meta:
+#         db_table = 'users'

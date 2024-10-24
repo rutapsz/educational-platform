@@ -1,7 +1,6 @@
-import time
-import io
+
 import matplotlib.pyplot as plt
-from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.pagesizes import A4
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework import status
@@ -12,7 +11,7 @@ from .serializers import (
     TestresultsSerializer, TestsSerializer, TopicsSerializer, UserescoursesrelSerializer, UsersSerializer,
     UserLoginSerializer, CoursesItemsSerializer
 )
-from django.http import JsonResponse, HttpResponse, FileResponse
+from django.http import JsonResponse, HttpResponse, FileResponse, Http404
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
@@ -35,23 +34,19 @@ from django.db.models import Max
 from rest_framework.decorators import action
 
 from django.db.models import Avg, Count
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
 from django.core.exceptions import ObjectDoesNotExist
 #from django.core.mail import EmailMessage
-from reportlab.lib.utils import ImageReader
-from PIL import Image
-from reportlab.lib.colors import white, black 
-from reportlab.lib.pagesizes import letter
-from django.shortcuts import get_object_or_404
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
-from reportlab.lib.colors import black, white
-from reportlab.lib.utils import ImageReader
+
 from io import BytesIO
+from dotenv import load_dotenv
+import os
+from reportlab.graphics.shapes import Image
+from reportlab.lib.colors import white, black
 from PIL import Image
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 
 class UserLogin(APIView):
     permission_classes = (AllowAny,)
@@ -294,8 +289,7 @@ class AdminReportsViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['get'])
     def download_report(self, request):
-        pdfmetrics.registerFont(TTFont('Arial', 'C:/Windows/Fonts/arial.ttf'))
-
+        pdfmetrics.registerFont(TTFont('HelveticaBold', 'HelveticaBold.ttf'))
         # Собираем статистику для отчета
         user_stats = Testresults.objects.values('user__login').annotate(avg_score=Avg('total_score'), num_tests=Count('id'))
 
@@ -311,13 +305,13 @@ class AdminReportsViewSet(viewsets.ViewSet):
         plt.xticks(rotation=45, ha='right')
 
         # Сохранение диаграммы в буфер
-        buf = io.BytesIO()
+        buf = BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
         plt.close()
 
         # Генерация PDF отчета
-        pdf_buf = io.BytesIO()
+        pdf_buf = BytesIO()
         p = canvas.Canvas(pdf_buf, pagesize=A4)
 
         # Добавление заголовка
@@ -342,21 +336,53 @@ class AdminReportsViewSet(viewsets.ViewSet):
         # Возвращаем PDF отчет
         return FileResponse(pdf_buf, as_attachment=True, filename='user_test_report.pdf')
 
+
+
+    
 class CertificateViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
-
+   
     def generate_certificate(self, user_first_name, user_last_name, course_name):
+        load_dotenv()
+        path = os.getenv('PATH_TO_IMAGES')
+        pdfmetrics.registerFont(TTFont('HelveticaBold', path + 'HelveticaBold.ttf'))
+        pdfmetrics.registerFont(TTFont('HelveticaLight', path + 'HelveticaLight.ttf'))
+
+        with Image.open(path + 'background.png') as img:
+            width, height = img.width, img.height
+            dpi = img.info.get('dpi', (72, 72))
+
+        width_in_points = width * 72 / dpi[0] - 4.5
+        height_in_points = height * 72 / dpi[1]
+
         buffer = BytesIO()
-        canvas_obj = canvas.Canvas(buffer, pagesize=letter)
-        
-        # Установка шрифта и текста
-        canvas_obj.setFont("Helvetica", 36)
-        canvas_obj.drawString(100, 700, "СЕРТИФИКАТ")
-        canvas_obj.setFont("Helvetica", 24)
-        canvas_obj.drawString(100, 650, f"Подтверждает, что {user_first_name} {user_last_name} прошел курс:")
-        canvas_obj.setFont("Helvetica", 24)
-        canvas_obj.drawString(100, 600, f"“{course_name}”")
-        
+        file_path = "certificate.pdf"
+        canvas_obj = canvas.Canvas(file_path, pagesize=(width_in_points, height_in_points))
+
+        background = ImageReader(path + 'background.png')
+        canvas_obj.drawImage(background, 0, 0, width=width_in_points, height=height_in_points)
+
+        with Image.open(path + 'logo.png') as img:
+            logo_width, logo_height = img.width, img.height
+
+        logo_width_in_points = logo_width * 72 / dpi[0] / 2
+        logo_height_in_points = logo_height * 72 / dpi[1] / 2
+
+        logo = ImageReader(path + 'logo.png')
+        canvas_obj.drawImage(logo, width_in_points - logo_width_in_points - 20,
+                             height_in_points - logo_height_in_points - 20, width=logo_width_in_points,
+                             height=logo_height_in_points, mask='auto')
+
+        canvas_obj.setFont("HelveticaBold", 70)
+        canvas_obj.setFillColor(white)
+        canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 250, "СЕРТИФИКАТ")
+        canvas_obj.setFont("HelveticaLight", 30)
+        canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 300,
+                                     f"подтверждает, что {user_first_name} {user_last_name}")
+        canvas_obj.setFillColor(black)
+        canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 450, f"прошел (-ла) курс")
+        canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 500, f"“{course_name}”")
+
         canvas_obj.showPage()
         canvas_obj.save()
         buffer.seek(0)
@@ -370,93 +396,15 @@ class CertificateViewSet(viewsets.ViewSet):
             user = Users.objects.get(pk=user_id)
             course_id = request.data.get('course_id')
             course = Courses.objects.get(pk=course_id)
-
-            # Генерация PDF сертификата
-            buffer = self.generate_certificate(user.first_name, user.last_name, course.name)
             
-            # Отправка PDF сертификата в ответе
+            results = Testresults.objects.filter(user=user, test__course=course)
+            passed_tests = results.count()
+            print(passed_tests)
+            total_tests = Tests.objects.filter(course_id=course_id).count()
+            if total_tests == 0 or (passed_tests != total_tests):
+                return Response({"error": "Процент прохождения курса менее 80%"}, status=status.HTTP_400_BAD_REQUEST)
+            buffer = self.generate_certificate(user.first_name, user.last_name, course.name)
             return FileResponse(buffer, as_attachment=True, filename=f'certificate_{course.name}.pdf')
 
         except ObjectDoesNotExist:
             return Response({"error": "Пользователь или курс не найден"}, status=status.HTTP_400_BAD_REQUEST)
-
-# class CertificateViewSet(viewsets.ViewSet):
-#     permission_classes = [IsAuthenticated]
-   
-#     def generate_certificate(self, user_first_name, user_last_name, course_name, score):
-#         pdfmetrics.registerFont(TTFont('Arial', 'C:/Windows/Fonts/arial.ttf'))
-#         pdfmetrics.registerFont(TTFont('Arial', 'C:/Windows/Fonts/arial.ttf'))
-
-        
-#         with Image.open('background.png') as img:
-#             width, height = img.width, img.height
-#             dpi = img.info.get('dpi', (72, 72))
-        
-#         width_in_points = width * 72 / dpi[0] - 4.5
-#         height_in_points = height * 72 / dpi[1]
-        
-#         buffer = BytesIO()
-#         file_path = "certificate.pdf"
-#         canvas_obj = canvas.Canvas(file_path, pagesize=(width_in_points, height_in_points))
-
-#         background = ImageReader('background.png')
-#         canvas_obj.drawImage(background, 0, 0, width=width_in_points, height=height_in_points)
-
-#         with Image.open('logo.png') as img:
-#             logo_width, logo_height = img.width, img.height
-
-#         logo_width_in_points = logo_width * 72 / dpi[0] / 2
-#         logo_height_in_points = logo_height * 72 / dpi[1] / 2
-
-#         logo = ImageReader('logo.png')
-#         canvas_obj.drawImage(logo, width_in_points - logo_width_in_points - 20, height_in_points - logo_height_in_points - 20, width=logo_width_in_points, height=logo_height_in_points, mask='auto')
-
-#         canvas_obj.setFont("Times-Roman", 70)
-#         canvas_obj.setFillColor(white) 
-#         canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 250, "СЕРТИФИКАТ")
-#         canvas_obj.setFont("Times-Roman", 30)
-#         canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 300, f"подтверждает, что {user_first_name} {user_last_name}")
-#         canvas_obj.setFillColor(black) 
-#         canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 450, f"прошел (-ла) курс")
-#         canvas_obj.drawCentredString(width_in_points / 2, height_in_points - 500, f"“{course_name}”")
-
-#         canvas_obj.showPage()
-#         canvas_obj.save()
-#         buffer.seek(0)
-#         return buffer
-    
-#     @action(detail=False, methods=['post'])
-#     def post(self, request, *args, **kwargs):
-#         user_id = request.data.get('user')
-        
-#         try:
-#             user = Users.objects.get(pk=user_id)
-#             course_id = request.data.get('course_id')
-#             course = Courses.objects.get(pk=course_id)
-            
-#             results = Testresults.objects.filter(user=user, test__course=course)
-#             passed_tests = results.count()
-#             total_tests = Tests.objects.filter(course_id=course_id).count()
-#             if total_tests == 0 or (passed_tests == total_tests):
-#                 return Response({"error": "Процент прохождения курса менее 80%"}, status=status.HTTP_400_BAD_REQUEST)
-                
-#             score = int((passed_tests / total_tests) * 100)
-#             # Генерация PDF сертификата
-#             buffer = self.generate_certificate(user.first_name, user.last_name, course.name, score)
-            
-            
-#             # Отправка на email
-#             #email = EmailMessage(
-#                 #f'Ваш сертификат для курса {course.name}',
-#                 #'Поздравляем, вы успешно прошли курс. Ваш сертификат во вложении.',
-#                 #'noreply@yourplatform.com',
-#                 #[user.email],
-#             #)
-#             #email.attach(f'certificate_{course.name}.pdf', buffer.getvalue(), 'application/pdf')
-#             #email.send()
-
-#             # Отправка PDF сертификата в ответе
-#             return FileResponse(buffer, as_attachment=True, filename=f'certificate_{course.name}.pdf')
-
-#         except ObjectDoesNotExist:
-#             return Response({"error": "Пользователь или курс не найден"}, status=status.HTTP_400_BAD_REQUEST)
