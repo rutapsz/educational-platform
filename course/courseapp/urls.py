@@ -6,6 +6,7 @@ from .views import (
     TestresultsViewSet, TestsViewSet, TopicsViewSet, UserescoursesrelViewSet, UsersViewSet, AdminReportsViewSet, CertificateViewSet
 )
 
+
 router = DefaultRouter()
 router.register(r'answers', AnswersViewSet)
 router.register(r'courses', CoursesViewSet)

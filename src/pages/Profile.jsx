@@ -7,21 +7,19 @@ const TestResults = () => {
   const [courses, setCourses] = useState([]);
   const [tests, setTests] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [allTestsPassed, setAllTestsPassed] = useState(false);
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
 
-  const get_profile =  () => {
-        client.get(`/api/user/${localStorage.getItem('username')}/`, {
-            withCredentials: true,
-        }).then(res => {
-          setUserData(res.data);
-        }).catch(error => {
-          setError(error);
-        });
+  const get_profile = () => {
+    client.get(`/api/user/${localStorage.getItem('username')}/`, {
+      withCredentials: true,
+    }).then(res => {
+      setUserData(res.data);
+    }).catch(error => {
+      setError(error);
+    });
   };
 
-  const courseId = 1;
   useEffect(() => {
     get_profile(); // Вызов функции для получения данных профиля при загрузке компонента
   }, []);
@@ -71,64 +69,78 @@ const TestResults = () => {
     fetchQuestions();
   }, []);
 
-  useEffect(() => {
-    checkIfAllTestsPassed();
-  }, [testResults, tests, questions]);
-
-  const checkIfAllTestsPassed = () => {
-    const allPassed = testResults.every(result => {
-      const test = tests.find(t => t.id === result.test);
-      if (!test) return false;
-
-      const testQuestions = questions.filter(q => q.test === test.id);
-      const totalQuestions = testQuestions.length;
-      const passingScore = totalQuestions * 0.5;
-
-      return result.total_score >= passingScore;
-    });
-    setAllTestsPassed(allPassed);
-  };
-
-  const groupedResults = testResults.reduce((acc, result) => {
-    const test = tests.find(t => t.id === result.test);
-    if (!test) return acc;
-
+  const groupedResults = tests.reduce((acc, test) => {
     const course = courses.find(c => c.id === test.course);
     if (!course) return acc;
 
     if (!acc[course.id]) {
       acc[course.id] = {
         courseName: course.name,
-        results: []
+        results: [],
+        isEligibleForCertificate: true, // Начальное значение флага
       };
     }
+
+    const userResult = testResults.find(r => r.test === test.id);
 
     acc[course.id].results.push({
       module: test.module,
       testName: test.name,
-      totalScore: result.total_score,
-      testDate: result.test_date
+      totalScore: userResult ? userResult.total_score : 0, // Если нет результата, ставим 0
+      testDate: userResult ? userResult.test_date : null,
+      testId: test.id // Добавляем идентификатор теста для дальнейшего использования
     });
 
     return acc;
   }, {});
 
-const handleGetCertificate = async (courseId) => {
-    const userId = localStorage.getItem('username');
+  // Проверяем, все ли тесты в курсе прошли успешно
+  Object.keys(groupedResults).forEach(courseId => {
+    groupedResults[courseId].results.forEach(result => {
+      const totalQuestions = questions.filter(q => q.test === result.testId).length;
+
+      if (totalQuestions > 0) {
+        const passingScore = Math.ceil(totalQuestions * 0.8);
+        // Если результат меньше проходного балла, устанавливаем флаг в false
+        if (result.totalScore < passingScore) {
+          groupedResults[courseId].isEligibleForCertificate = false;
+        }
+      } else {
+        // Если вопросов нет, считаем, что тест не пройден
+        groupedResults[courseId].isEligibleForCertificate = false;
+      }
+    });
+  });
+
+  // const handleCertificateClick = (courseId) => {
+  //   const userId = userData.id; // Получите ID пользователя из данных профиля
+  //   const url = `/api/generate_certificate/${userId}/${courseId}/`;
+    
+  //   // Открыть PDF в новом окне
+  //   window.open(url, '_blank');
+  // };
+
+  const userId = localStorage.getItem('username'); // Берем ID пользователя
+
+  const downloadCertificate = async (courseId) => {
     try {
-      const response = await client.post('/api/certificates/', { user: userId, course_id: courseId }, { responseType: 'blob' });
+      const response = await client.post('/api/certificates/', {
+        user: userId,
+        course_id: courseId,
+      }, { responseType: 'blob' }); // Указываем тип ответа как blob
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `certificate_${userId}.pdf`);
+      link.setAttribute('download', `certificate_${courseId}.pdf`); // Имя файла
       document.body.appendChild(link);
       link.click();
       link.remove();
-    } catch (error) {
-      console.error('Ошибка при получении сертификата:', error);
+    } catch (err) {
+      console.error('Ошибка при загрузке сертификата:', err);
+      alert('Ошибка при получении сертификата');
     }
   };
-
 
   return (
     <div className="container">
@@ -159,48 +171,18 @@ const handleGetCertificate = async (courseId) => {
                 <p>Модуль: {result.module}</p>
                 <p>Название теста: {result.testName}</p>
                 <p>Общий счет: {result.totalScore}</p>
-                <p>Дата теста: {new Date(result.testDate).toLocaleString()}</p>
+                <p>Дата теста: {result.testDate ? new Date(result.testDate).toLocaleString() : 'Не пройден'}</p>
               </div>
             ))}
+            {groupedResults[courseId].isEligibleForCertificate && (
+              <button className="button" onClick={() => downloadCertificate(courseId)}>Получить сертификат</button>
+            )}
           </div>
         ))}
       </div>
-      {allTestsPassed && (
-        <button onClick={handleGetCertificate(courseId)} className="button">Получить сертификат</button>
-      )}
+      
     </div>
   );
-
-  function getCourseName(testId) {
-    const test = tests.find(t => t.id === testId);
-    if (!test) {
-      console.log(`Тест с ID ${testId} не найден`);
-      return 'Неизвестный курс';
-    }
-    const course = courses.find(c => c.id === test.course);
-    if (!course) {
-      console.log(`Курс с ID ${test.course} не найден`);
-    }
-    return course ? course.name : 'Неизвестный курс';
-  }
-
-  function getModuleNumber(testId) {
-    const test = tests.find(t => t.id === testId);
-    if (!test) {
-      console.log(`Тест с ID ${testId} не найден`);
-      return 'Неизвестный модуль';
-    }
-    return test.module !== null ? test.module : 'Неизвестный модуль';
-  }
-
-  function getTestName(testId) {
-    const test = tests.find(t => t.id === testId);
-    if (!test) {
-      console.log(`Тест с ID ${testId} не найден`);
-      return 'Неизвестный тест';
-    }
-    return test.name ? test.name : 'Неизвестный тест';
-  }
 };
 
 export default TestResults;
